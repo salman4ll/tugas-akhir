@@ -15,7 +15,10 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+Route::get('/detail_product', function () {
+    return view('product.detail');
+});
 
 Route::get('/products', function () {
-    return view('product');
+    return view('product.index');
 });

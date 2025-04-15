@@ -53,7 +53,7 @@
                                 <p class="text-sm text-gray-600">Unlimited Standard Data, Public IP, Network Priority, Priority Support</p>
                             </div>
                         </div>
-                        <button class="bg-[#ED4436] text-white px-4 py-2 rounded-md hover:bg-[#fe7164]">Beli Sekarang</button>
+                        <button onclick="window.location.href='/detail_product'" class="bg-[#ED4436] text-white px-4 py-2 rounded-md hover:bg-[#fe7164]">Beli Sekarang</button>
                     </div>
     
                     {{-- Produk 2 --}}

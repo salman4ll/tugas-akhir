@@ -28,7 +28,7 @@
                         </a>
                         <a href="{{ url('/products') }}"
                             class="rounded-md px-3 py-2 text-sm font-medium 
-                {{ request()->is('products') ? 'bg-[#ED4436] text-white' : 'text-black hover:bg-[#fe7164] hover:text-white' }}">
+                {{ request()->is(['products', 'detail_product']) ? 'bg-[#ED4436] text-white' : 'text-black hover:bg-[#fe7164] hover:text-white' }}">
                             Layanan
                         </a>
                         <a href="{{ url('/promo') }}"
