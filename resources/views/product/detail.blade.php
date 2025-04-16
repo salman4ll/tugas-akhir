@@ -19,11 +19,11 @@
 
                     <div class="">
                         <button class="flex w-full text-left text-lg font-medium text-gray-800"
-                            onclick="toggleSpec(this)">
+                            onclick="toggleContent(this, '.spec-content', '.iconspec', 'v', '>')">
                             <span class="iconspec transition-transform duration-200">></span>
                             <span>Spesifikasi Produk</span>
                         </button>
-                        <div class="spec-content hidden text-sm text-gray-600">
+                        <div class="spec-content overflow-hidden transition-all duration-300 ease-in-out opacity-0 max-h-0 text-gray-600">
                             Memiliki kualitas yang terjamin dengan beberapa keunggulan:
                             <ul>
                                 <li>- asjdasjsda</li>
@@ -98,44 +98,44 @@
                 <div class="col-span-12 space-y-4" id="faq-section"> 
                     <div class="border-b-[1px] border-black pb-3">
                         <button class="flex justify-between w-full text-left text-lg font-medium text-gray-800 py-3"
-                            onclick="toggleFaq(this)">
+                            onclick="toggleContent(this, '.faq-content', '.icon', '−', '+')">
                             <span>Bagaimana cara membeli produk MyTelkomsat?</span>
                             <span class="icon transition-transform duration-200">+</span>
                         </button>
-                        <div class="faq-content hidden text-sm text-gray-600 mt-2">
+                        <div class="faq-content overflow-hidden transition-all duration-300 ease-in-out opacity-0 max-h-0">
                             Kamu bisa membeli produk MyTelkomsat melalui halaman produk. Pilih perangkat & layanan, lalu klik lanjutkan pembayaran.
                         </div>
                     </div>
 
                     <div class="border-b-[1px] border-black pb-3">
                         <button class="flex justify-between w-full text-left text-lg font-medium text-gray-800 py-3"
-                            onclick="toggleFaq(this)">
+                            onclick="toggleContent(this, '.faq-content', '.icon', '−', '+')">
                             <span>Saya sudah melakukan registrasi, apa langkah selanjutnya?</span>
                             <span class="icon transition-transform duration-200">+</span>
                         </button>
-                        <div class="faq-content hidden text-sm text-gray-600 mt-2">
+                        <div class="faq-content overflow-hidden transition-all duration-300 ease-in-out opacity-0 max-h-0">
                             Silakan login ke akun kamu dan lengkapi data sebelum memilih produk dan layanan.
                         </div>
                     </div>
 
                     <div class="border-b-[1px] border-black pb-3">
                         <button class="flex justify-between w-full text-left text-lg font-medium text-gray-800 py-3"
-                            onclick="toggleFaq(this)">
+                            onclick="toggleContent(this, '.faq-content', '.icon', '−', '+')">
                             <span>Dimana saya dapat melihat status pesanan?</span>
                             <span class="icon transition-transform duration-200">+</span>
                         </button>
-                        <div class="faq-content hidden text-sm text-gray-600 mt-2">
+                        <div class="faq-content overflow-hidden transition-all duration-300 ease-in-out opacity-0 max-h-0">
                             Status pesanan dapat dilihat di halaman profil kamu pada bagian "Riwayat Pemesanan".
                         </div>
                     </div>
 
                     <div class="border-b-[1px] border-black pb-3">
                         <button class="flex justify-between w-full text-left text-lg font-medium text-gray-800 py-3"
-                            onclick="toggleFaq(this)">
+                            onclick="toggleContent(this, '.faq-content', '.icon', '−', '+')">
                             <span>Bagaimana cara saya memonitoring produk yang telah dibeli?</span>
                             <span class="icon transition-transform duration-200">+</span>
                         </button>
-                        <div class="faq-content hidden text-sm text-gray-600 mt-2">
+                        <div class="faq-content overflow-hidden transition-all duration-300 ease-in-out opacity-0 max-h-0">
                             Kamu bisa memonitoring produk lewat dashboard monitoring yang tersedia setelah login.
                         </div>
                     </div>
@@ -191,37 +191,33 @@
 
     btnBayar.addEventListener('click', () => {
         if (selectedDevice && selectedLayanan) {
-            alert(`Lanjutkan pembayaran untuk perangkat ID: ${selectedDevice} dan layanan ID: ${selectedLayanan}?`);
+            localStorage.setItem('selectedDevice', selectedDevice);
+            localStorage.setItem('selectedLayanan', selectedLayanan);
+
+            window.location.href = "/payment_summary";
+        } else {
+            alert("Silakan pilih perangkat dan layanan terlebih dahulu.");
         }
     });
 
-    function toggleFaq(btn) {
+    function toggleContent(btn, contentSelector, iconSelector, openIcon = '−', closeIcon = '+') {
         const content = btn.nextElementSibling;
-        const icon = btn.querySelector('.icon');
+        const icon = btn.querySelector(iconSelector);
+        const isOpen = content.style.maxHeight && content.style.maxHeight !== "0px";
 
-        const isOpen = !content.classList.contains('hidden');
+        document.querySelectorAll(contentSelector).forEach(c => {
+            c.style.maxHeight = "0px";
+            c.classList.remove("opacity-100");
+            c.classList.add("opacity-0");
+        });
 
-        document.querySelectorAll('.faq-content').forEach(c => c.classList.add('hidden'));
-        document.querySelectorAll('.icon').forEach(i => i.innerText = '+');
+        document.querySelectorAll(iconSelector).forEach(i => i.innerText = closeIcon);
 
         if (!isOpen) {
-            content.classList.remove('hidden');
-            icon.innerText = '−';
-        }
-    }
-
-    function toggleSpec(btn) {
-        const content = btn.nextElementSibling;
-        const iconSpec = btn.querySelector('.iconspec');
-
-        const isOpen = !content.classList.contains('hidden');
-
-        document.querySelectorAll('.spec-content').forEach(c => c.classList.add('hidden'));
-        document.querySelectorAll('.iconspec').forEach(i => i.innerText = '>');
-
-        if (!isOpen) {
-            content.classList.remove('hidden');
-            iconSpec.innerText = 'v';
+            content.style.maxHeight = content.scrollHeight + "px";
+            content.classList.remove("opacity-0");
+            content.classList.add("opacity-100");
+            icon.innerText = openIcon;
         }
     }
 </script>
