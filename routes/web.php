@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -15,10 +17,11 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-Route::get('/detail_product', function () {
-    return view('product.detail');
-});
+Route::get('/detail_product/{id}', [ProductController::class, 'detail'])->name('products.detail')->middleware('auth');
 
-Route::get('/products', function () {
-    return view('product.index');
-});
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
+Route::get('/provinces', [AddressController::class, 'getProvinces'])->name('provinces.index');
+Route::get('/cities/{provinceId}', [AddressController::class, 'getCities'])->name('cities.index');
+Route::get('/districts/{cityId}', [AddressController::class, 'getDistricts'])->name('districts.index');
+Route::get('/subdistricts/{districtId}', [AddressController::class, 'getSubDistricts'])->name('subdistricts.index');

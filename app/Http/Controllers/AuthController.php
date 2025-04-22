@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CpCustomer;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +23,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'username' => ['required'],
             'password' => ['required'],
         ]);
 
@@ -32,27 +33,51 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ]);
+            'username' => 'username atau password salah',
+        ])->onlyInput('username');
     }
 
     public function register(Request $request)
     {
         $request->validate([
-            'name' => ['required'],
-            'email' => ['required', 'email', 'unique:users'],
+            'nama_perusahaan' => ['required'],
+            'npwp_perusahaan' => ['required', 'unique:tbl_customer,npwp_perusahaan'],
+            'email_perusahaan' => ['required', 'email', 'unique:tbl_customer,email_perusahaan'],
+            'no_telp_perusahaan' => ['required', 'unique:tbl_customer,no_telp_perusahaan'],
+            'username' => ['required', 'unique:tbl_customer,username'],
+            'nama' => ['required'],
+            'email' => ['required', 'email', 'unique:tbl_cp_customer,email'],
+            'no_telp' => ['required', 'unique:tbl_cp_customer,no_telp'],
+            'provinsi_id' => ['required'],
+            'kota_id' => ['required'],
+            'kecamatan_id' => ['required'],
+            'kelurahan_id' => ['required'],
             'password' => ['required', 'min:6', 'confirmed'],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'nama_perusahaan' => $request->nama_perusahaan,
+            'email_perusahaan' => $request->email_perusahaan,
+            'npwp_perusahaan' => $request->npwp_perusahaan,
+            'no_telp_perusahaan' => $request->no_telp_perusahaan,
+            'username' => $request->username,
             'password' => Hash::make($request->password),
+            'provinsi_id' => $request->provinsi_id,
+            'kota_id' => $request->kota_id,
+            'kecamatan_id' => $request->kecamatan_id,
+            'kelurahan_id' => $request->kelurahan_id,
         ]);
+
+        CpCustomer::create([
+            'customer_id' => $user->id,
+            'nama' => $request->nama,
+            'email' => $request->email,
+            'no_telp' => $request->no_telp,
+        ]);        
 
         Auth::login($user);
 
-        return redirect('/dashboard');
+        return redirect('/');
     }
 
     public function logout(Request $request)

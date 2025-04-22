@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    protected $table = 'tbl_customer';
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -18,9 +19,21 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'nama_perusahaan',
+        'email_perusahaan',
+        'no_telp_perusahaan',
+        'npwp_perusahaan',
+        'username',
         'password',
+        'alamat',
+        'provinsi_id',
+        'kota_id',
+        'kecamatan_id',
+        'kelurahan_id',
+        'latitude',
+        'longitude',
+        'email_verified_at',
+        'otp_code',
     ];
 
     /**
@@ -44,5 +57,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function cpCustomer()
+    {
+        return $this->hasMany(CpCustomer::class, 'customer_id');
     }
 }
