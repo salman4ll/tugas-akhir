@@ -3,27 +3,26 @@
 @section('title', 'Product')
 
 @section('content')
-<div class="bg-gray-100">
-    <div class="mx-auto max-w-7xl px-8 py-10 min-h-screen text-gray-800">
-        <div class="flex flex-col gap-8">
+    <div class="bg-gray-100">
+        <div class="mx-auto max-w-7xl px-8 py-10 min-h-screen text-gray-800">
             <div class="grid grid-cols-12 gap-8">
                 <div class="md:col-span-6 col-span-12 flex justify-center">
-                    <img src="image/1.webp" alt="" class="w-full h-auto max-h-[400px] object-contain">
+                    <img id="main-image" src="{{ asset('assets/images/' . $product->image) }}"
+                        alt="{{ $product->nama_kategori }}" class="w-full h-auto max-h-[400px] object-contain">
+
                 </div>
 
                 <div class="md:col-span-6 col-span-12 flex flex-col gap-5">
-                    <div class="flex flex-row justify-between items-center">
-                        <p class="font-bold text-3xl">Land Mobility</p>
-                        <a href="" class="block text-blue-500 font-bold text-md">Bandingkan Produk ></a>
-                    </div>
+                    <p class="font-bold text-3xl">{{ $product->nama_kategori }}</p>
+                    <p class="text-gray-700">{{ $product->deskripsi }}</p>
 
                     <div class="">
-                        <button class="flex w-full text-left text-lg font-medium text-gray-800"
-                            onclick="toggleContent(this, '.spec-content', '.iconspec', 'v', '>')">
+                        <button class="flex w-full text-left text-lg font-medium text-gray-800" onclick="toggleSpec(this)">
                             <span class="iconspec transition-transform duration-200">></span>
                             <span>Spesifikasi Produk</span>
                         </button>
-                        <div class="spec-content overflow-hidden transition-all duration-300 ease-in-out opacity-0 max-h-0 text-gray-600">
+                        <div
+                            class="spec-content overflow-hidden transition-all duration-300 ease-in-out opacity-0 max-h-0 text-gray-600">
                             Memiliki kualitas yang terjamin dengan beberapa keunggulan:
                             <ul>
                                 <li>- asjdasjsda</li>
@@ -36,189 +35,166 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-2 flex-col">
-                        <p class="text-xl">Pilih Perangkat: <span id="deviceId"></span></p>
-
-                        <div class="flex flex-row gap-2" id="device-options">
-                            <button
-                                class="device-btn w-[200px] py-[5px] bg-[#242134] text-white rounded-md transition duration-200 ease-in-out active:scale-95 border-2 hover:bg-[#494366] hover:border-2 hover:border-[#7f74ff]" data-device-id="1">
-                                Flat High Performance
-                                <span class="block text-gray-400 text-sm">IDRXXXXX</span>
-                            </button>
-
-                            <button
-                                class="device-btn w-[200px] py-[5px] bg-[#242134] text-white rounded-md transition duration-200 ease-in-out active:scale-95 border-2 hover:bg-[#494366] hover:border-2 hover:border-[#7f74ff]" data-device-id="2">
-                                Standard Actuated
-                                <span class="block text-gray-400 text-sm">IDRXXXXX</span>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-2 flex-col">
-                        <p class="text-xl">Pilih Perangkat: <span id="layananId"></span></p>
-
-                        <div class="flex flex-row gap-2" id="layanan-options">
-                            <button
-                                class="layanan-btn w-[200px] py-[5px] bg-[#242134] text-white rounded-md transition duration-200 ease-in-out active:scale-95 border-2 hover:bg-[#494366] hover:border-2 hover:border-[#7f74ff]" data-layanan-id="1">
-                                Mobile Priority
-                                <span class="block text-gray-400 text-sm">50 GB - IDRXXXXX</span>
-                            </button>
-
-                            <button
-                                class="layanan-btn w-[200px] py-[5px] bg-[#242134] text-white rounded-md transition duration-200 ease-in-out active:scale-95 border-2 hover:bg-[#494366] hover:border-2 hover:border-[#7f74ff]" data-layanan-id="2">
-                                Mobile Prioritylayanan
-                                <span class="block text-gray-400 text-sm">1 TB - IDRXXXXX</span>
-                            </button>
-
-                            <button
-                                class="layanan-btn w-[200px] py-[5px] bg-[#242134] text-white rounded-md transition duration-200 ease-in-out active:scale-95 border-2 hover:bg-[#494366] hover:border-2 hover:border-[#7f74ff]" data-layanan-id="3">
-                                Mobile Priority
-                                <span class="block text-gray-400 text-sm">5 TB - IDRXXXXX</span>
-                            </button>
+                    <div class="flex flex-col gap-4">
+                        <p class="text-xl font-semibold">Pilih Perangkat:</p>
+                        <div id="perangkat-options" class="gap-3 grid grid-cols-3">
+                            @foreach ($product->perangkat as $perangkat)
+                                <button
+                                    class="perangkat-btn w-full py-2 bg-[#4E5764] text-white rounded-md transition active:scale-95 hover:bg-[#001A41] hover:border-[#7f74ff]"
+                                    data-perangkat-id="{{ $perangkat->encrypted_id }}"
+                                    data-image="{{ asset('assets/images/' . $perangkat->gambar_perangkat) }}">
+                                    {{ $perangkat->nama_perangkat }}
+                                    <span class="block text-sm text-gray-400">IDR
+                                        {{ number_format($perangkat->harga_perangkat, 0, ',', '.') }}</span>
+                                </button>
+                            @endforeach
                         </div>
                     </div>
 
-                    <div class="flex flex-row gap-2">
-                        <button class="w-[200px] py-[10px] bg-[#5a40ef] text-white rounded-md hover:">
-                            Hubungi AM
-                        </button>
-                        
-                        <button id="btn-bayar" disabled class="w-[200px] py-[10px] bg-gray-400 text-white rounded-md cursor-not-allowed">
-                            Lanjutkan Pembayaran
-                        </button>
+                    <div class="flex flex-col gap-4">
+                        <p class="text-xl font-semibold">Pilih Layanan:</p>
+                        <div id="layanan-options" class="grid grid-cols-3 gap-3">
+                            <!-- Layanan akan muncul di sini saat perangkat dipilih -->
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="w-full py-3 bg-[#001A41] text-white rounded-md">Hubungi AM</button>
+                        <button id="btn-bayar" disabled
+                            class="w-full py-3 bg-[#ED0226] text-white rounded-md cursor-not-allowed">Lanjutkan
+                            Pembayaran</button>
                     </div>
                 </div>
             </div>
-
-            <div class="grid grid-cols-12 gap-8">
+            <div class="flex flex-col gap-8 mt-8">
                 <div class="col-span-12">
                     <p class="font-bold text-3xl">Frequently Ask Question</p>
                 </div>
 
-                <div class="col-span-12 space-y-4" id="faq-section"> 
-                    <div class="border-b-[1px] border-black pb-3">
-                        <button class="flex justify-between w-full text-left text-lg font-medium text-gray-800 py-3"
-                            onclick="toggleContent(this, '.faq-content', '.icon', '−', '+')">
-                            <span>Bagaimana cara membeli produk MyTelkomsat?</span>
-                            <span class="icon transition-transform duration-200">+</span>
-                        </button>
-                        <div class="faq-content overflow-hidden transition-all duration-300 ease-in-out opacity-0 max-h-0">
-                            Kamu bisa membeli produk MyTelkomsat melalui halaman produk. Pilih perangkat & layanan, lalu klik lanjutkan pembayaran.
+                <div class="space-y-4" id="faq-section">
+                    @foreach ($product->faq_produk as $faq)
+                        <div class="border-b-[1px] border-black pb-3">
+                            <button class="flex justify-between w-full text-left text-lg font-medium text-gray-800 py-3"
+                                onclick="toggleFaq(this)">
+                                <span>{{ $faq->pertanyaan }}</span>
+                                <span class="icon transition-transform duration-200">+</span>
+                            </button>
+                            <div class="faq-content hidden text-sm text-gray-600 mt-2">
+                                {{ $faq->jawaban }}
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="border-b-[1px] border-black pb-3">
-                        <button class="flex justify-between w-full text-left text-lg font-medium text-gray-800 py-3"
-                            onclick="toggleContent(this, '.faq-content', '.icon', '−', '+')">
-                            <span>Saya sudah melakukan registrasi, apa langkah selanjutnya?</span>
-                            <span class="icon transition-transform duration-200">+</span>
-                        </button>
-                        <div class="faq-content overflow-hidden transition-all duration-300 ease-in-out opacity-0 max-h-0">
-                            Silakan login ke akun kamu dan lengkapi data sebelum memilih produk dan layanan.
-                        </div>
-                    </div>
-
-                    <div class="border-b-[1px] border-black pb-3">
-                        <button class="flex justify-between w-full text-left text-lg font-medium text-gray-800 py-3"
-                            onclick="toggleContent(this, '.faq-content', '.icon', '−', '+')">
-                            <span>Dimana saya dapat melihat status pesanan?</span>
-                            <span class="icon transition-transform duration-200">+</span>
-                        </button>
-                        <div class="faq-content overflow-hidden transition-all duration-300 ease-in-out opacity-0 max-h-0">
-                            Status pesanan dapat dilihat di halaman profil kamu pada bagian "Riwayat Pemesanan".
-                        </div>
-                    </div>
-
-                    <div class="border-b-[1px] border-black pb-3">
-                        <button class="flex justify-between w-full text-left text-lg font-medium text-gray-800 py-3"
-                            onclick="toggleContent(this, '.faq-content', '.icon', '−', '+')">
-                            <span>Bagaimana cara saya memonitoring produk yang telah dibeli?</span>
-                            <span class="icon transition-transform duration-200">+</span>
-                        </button>
-                        <div class="faq-content overflow-hidden transition-all duration-300 ease-in-out opacity-0 max-h-0">
-                            Kamu bisa memonitoring produk lewat dashboard monitoring yang tersedia setelah login.
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    const buttonDevice = document.querySelectorAll('#device-options .device-btn');
-    const deviceId = document.getElementById("deviceId");
+    <script>
+        const produkData = @json($product->perangkat);
 
-    const buttonLayanan = document.querySelectorAll('#layanan-options .layanan-btn');
-    const layananId = document.getElementById("layananId");
+        const perangkatButtons = document.querySelectorAll('.perangkat-btn');
+        const layananContainer = document.getElementById('layanan-options');
+        const btnBayar = document.getElementById('btn-bayar');
 
-    const btnBayar = document.getElementById("btn-bayar");
+        let selectedPerangkat = null;
+        let selectedLayanan = null;
 
-    let selectedDevice = null;
-    let selectedLayanan = null;
+        perangkatButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                selectedPerangkat = button.dataset.perangkatId;
+                selectedLayanan = null;
+                btnBayar.disabled = true;
+                btnBayar.classList.add('bg-gray-400', 'cursor-not-allowed');
+                btnBayar.classList.remove('bg-[#5a5964]', 'hover:bg-[#6d6677]', 'cursor-pointer');
 
-    function checkSelections() {
-        if (selectedDevice && selectedLayanan) {
-            btnBayar.removeAttribute('disabled');
-            btnBayar.classList.remove('bg-gray-400', 'cursor-not-allowed');
-            btnBayar.classList.add('bg-[#5a5964]', 'hover:bg-[#6d6677]', 'cursor-pointer');
-        } else {
-            btnBayar.setAttribute('disabled', true);
-            btnBayar.classList.add('bg-gray-400', 'cursor-not-allowed');
-            btnBayar.classList.remove('bg-[#5a5964]', 'hover:bg-[#6d6677]', 'cursor-pointer');
-        }
-    }
+                const newImage = button.getAttribute('data-image');
+                document.getElementById('main-image').src = newImage;
 
-    buttonDevice.forEach(btn => {
-        btn.addEventListener('click', () => {
-            buttonDevice.forEach(b => b.classList.remove('bg-[#494366]', 'border-[#7f74ff]'));
-            btn.classList.add('bg-[#494366]', 'border-2', 'border-[#7f74ff]');
-            selectedDevice = btn.getAttribute('data-device-id');
-            deviceId.innerHTML = selectedDevice;
-            checkSelections();
-        });
-    });
+                document.querySelectorAll('.perangkat-btn').forEach(btn => {
+                    btn.classList.remove('ring-2', 'ring-[#7f74ff]', 'bg-[#001A41]');
+                    btn.classList.add('bg-[#4E5764]');
+                });
+                button.classList.add('ring-2', 'ring-[#7f74ff]', 'bg-[#001A41]');
+                button.classList.remove('bg-[#4E5764]');
 
-    buttonLayanan.forEach(btn => {
-        btn.addEventListener('click', () => {
-            buttonLayanan.forEach(b => b.classList.remove('bg-[#494366]', 'border-[#7f74ff]'));
-            btn.classList.add('bg-[#494366]', 'border-2', 'border-[#7f74ff]');
-            selectedLayanan = btn.getAttribute('data-layanan-id');
-            layananId.innerHTML = selectedLayanan;
-            checkSelections();
-        });
-    });
+                const layanan = produkData.find(p => p.encrypted_id == selectedPerangkat).layanan;
 
-    btnBayar.addEventListener('click', () => {
-        if (selectedDevice && selectedLayanan) {
-            localStorage.setItem('selectedDevice', selectedDevice);
-            localStorage.setItem('selectedLayanan', selectedLayanan);
+                layananContainer.innerHTML = '';
+                layanan.forEach(item => {
+                    const layananBtn = document.createElement('button');
+                    layananBtn.className =
+                        'layanan-btn w-full py-2 bg-[#4E5764] text-white rounded-md transition active:scale-95 hover:bg-[#001A41] hover:border-[#7f74ff]';
+                    layananBtn.setAttribute('data-layanan-id', item.encrypted_id);
+                    layananBtn.innerHTML =
+                        `${item.deskripsi_layanan}<span class="block text-sm text-gray-400">${item.nama_layanan} - IDR ${new Intl.NumberFormat('id-ID').format(item.harga_layanan)}</span>`;
 
-            window.location.href = "/payment_summary";
-        } else {
-            alert("Silakan pilih perangkat dan layanan terlebih dahulu.");
-        }
-    });
+                    layananBtn.addEventListener('click', () => {
+                        selectedLayanan = item.encrypted_id;
+                        document.querySelectorAll('.layanan-btn').forEach(btn => {
+                            btn.classList.remove('ring-2', 'ring-[#7f74ff]',
+                                'bg-[#001A41]');
+                            btn.classList.add('bg-[#4E5764]');
+                        });
+                        layananBtn.classList.add('ring-2', 'ring-[#7f74ff]',
+                            'bg-[#001A41]');
+                        layananBtn.classList.remove('bg-[#4E5764]');
 
-    function toggleContent(btn, contentSelector, iconSelector, openIcon = '−', closeIcon = '+') {
-        const content = btn.nextElementSibling;
-        const icon = btn.querySelector(iconSelector);
-        const isOpen = content.style.maxHeight && content.style.maxHeight !== "0px";
+                        if (selectedPerangkat && selectedLayanan) {
+                            btnBayar.disabled = false;
+                            btnBayar.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                            btnBayar.classList.add('bg-[#5a5964]', 'hover:bg-[#6d6677]',
+                                'cursor-pointer');
+                        }
+                    });
 
-        document.querySelectorAll(contentSelector).forEach(c => {
-            c.style.maxHeight = "0px";
-            c.classList.remove("opacity-100");
-            c.classList.add("opacity-0");
+                    layananContainer.appendChild(layananBtn);
+                });
+            });
         });
 
-        document.querySelectorAll(iconSelector).forEach(i => i.innerText = closeIcon);
+        btnBayar.addEventListener('click', () => {
+            if (selectedPerangkat && selectedLayanan) {
+                const url = `/payment-summary/${selectedLayanan}`;
+                window.location.href = url;
+            }
+        });
 
-        if (!isOpen) {
-            content.style.maxHeight = content.scrollHeight + "px";
-            content.classList.remove("opacity-0");
-            content.classList.add("opacity-100");
-            icon.innerText = openIcon;
+        function toggleFaq(btn) {
+            const content = btn.nextElementSibling;
+            const icon = btn.querySelector('.icon');
+
+            const isOpen = !content.classList.contains('hidden');
+
+            document.querySelectorAll('.faq-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('.icon').forEach(i => i.innerText = '+');
+
+            if (!isOpen) {
+                content.classList.remove('hidden');
+                icon.innerText = '−';
+            }
         }
-    }
-</script>
+
+        function toggleSpec(btn) {
+            const content = btn.nextElementSibling;
+            const iconSpec = btn.querySelector('.iconspec');
+
+            const isOpen = !content.classList.contains('hidden');
+
+            document.querySelectorAll('.spec-content').forEach(c => {
+                c.classList.add('hidden', 'opacity-0');
+                c.classList.remove('max-h-96', 'opacity-100');
+            });
+
+            document.querySelectorAll('.iconspec').forEach(i => i.innerText = '>');
+
+            if (!isOpen) {
+                content.classList.remove('hidden');
+                void content.offsetWidth;
+                content.classList.remove('opacity-0');
+                content.classList.add('max-h-96', 'opacity-100');
+                iconSpec.innerText = 'v';
+            }
+        }
+    </script>
+
 @endsection

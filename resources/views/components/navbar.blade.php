@@ -1,10 +1,9 @@
-<nav class="">
+<nav class="bg-white">
     <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div class="relative flex h-16 items-center justify-between">
-            <!-- Mobile menu button -->
             <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 <button type="button"
-                    class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-[#fe7164] hover:text-white focus:ring-2 focus:ring-white">
+                    class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-[#ED4436] hover:text-white focus:ring-2 focus:ring-white">
                     <svg class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -12,33 +11,30 @@
                 </button>
             </div>
 
-            <!-- Logo + Menu -->
             <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div class="flex shrink-0 items-center">
-                    <img class="h-8 w-auto"
-                        src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                        alt="Your Company">
+                    <img class="h-8 w-auto" src="{{ asset('assets/images/logo.png') }}" alt="Your Company">
                 </div>
                 <div class="hidden sm:ml-6 sm:block">
                     <div class="flex space-x-4">
                         <a href="{{ url('/') }}"
                             class="rounded-md px-3 py-2 text-sm font-medium 
-                {{ request()->is('/') ? 'bg-[#ED4436] dark:text-black' : 'text-black hover:bg-[#fe7164] hover:text-white' }}">
+                {{ request()->is('/') ? 'bg-[#ED0226] text-white' : 'text-black hover:bg-[#ED4436] hover:text-white' }}">
                             Beranda
                         </a>
                         <a href="{{ url('/products') }}"
                             class="rounded-md px-3 py-2 text-sm font-medium 
-                {{ request()->is(['products', 'detail_product']) ? 'bg-[#ED4436] text-white' : 'text-black hover:bg-[#fe7164] hover:text-white' }}">
+                {{ request()->is(['products', 'detail_product']) ? 'bg-[#ED0226] text-white' : 'text-black hover:bg-[#ED4436] hover:text-white' }}">
                             Layanan
                         </a>
                         <a href="{{ url('/promo') }}"
                             class="rounded-md px-3 py-2 text-sm font-medium 
-                {{ request()->is('promo') ? 'bg-[#ED4436] text-white' : 'text-black hover:bg-[#fe7164] hover:text-white' }}">
+                {{ request()->is('promo') ? 'bg-[#ED0226] text-white' : 'text-black hover:bg-[#ED4436] hover:text-white' }}">
                             Promo
                         </a>
                         <a href="{{ url('/faq') }}"
                             class="rounded-md px-3 py-2 text-sm font-medium 
-                {{ request()->is('faq') ? 'bg-[#ED4436] text-white' : 'text-black hover:bg-[#fe7164] hover:text-white' }}">
+                {{ request()->is('faq') ? 'bg-[#ED0226] text-white' : 'text-black hover:bg-[#ED4436] hover:text-white' }}">
                             FAQ
                         </a>
                     </div>
@@ -83,9 +79,9 @@
                 @guest
                     <div class="flex gap-2 items-center">
                         <a href="{{ route('register') }}"
-                            class="border border-[#ED4436] text-[#ED4436] px-4 py-2 rounded-md text-sm font-medium hover:bg-[#fe7164]">Register</a>
+                            class="border border-[#ED0226] text-[#ED0226] px-4 py-2 rounded-md text-sm font-medium hover:bg-[#ED4436] hover:text-white">Register</a>
                         <a href="{{ route('login') }}"
-                            class="bg-[#ED4436] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#fe7164]">Login</a>
+                            class="bg-[#ED0226] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#ED4436]">Login</a>
                     </div>
                 @endguest
             </div>
@@ -98,11 +94,11 @@
             <a href="#"
                 class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white">Dashboard</a>
             <a href="#"
-                class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#fe7164] hover:text-white">Team</a>
+                class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#ED4436] hover:text-white">Team</a>
             <a href="#"
-                class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#fe7164] hover:text-white">Projects</a>
+                class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#ED4436] hover:text-white">Projects</a>
             <a href="#"
-                class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#fe7164] hover:text-white">Calendar</a>
+                class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#ED4436] hover:text-white">Calendar</a>
         </div>
     </div>
 </nav>

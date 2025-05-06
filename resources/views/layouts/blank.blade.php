@@ -8,21 +8,24 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
 
     <!-- Styles -->
     @vite(['resources/css/app.css'])
 
     @stack('styles')
 </head>
-<body class="font-sans antialiased">
+<body class="font-montserrat antialiased bg-[#F6F3F3]">
     <div class="min-h-screen">
         @include('components.navbar')
-        
+
         @yield('content')
     </div>
 
     <!-- Scripts -->
     @vite(['resources/js/app.js'])
+
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     
     @stack('scripts')
 </body>
