@@ -21,7 +21,8 @@
                             <span class="iconspec transition-transform duration-200">></span>
                             <span>Spesifikasi Produk</span>
                         </button>
-                        <div class="spec-content hidden text-sm text-gray-600">
+                        <div
+                            class="spec-content overflow-hidden transition-all duration-300 ease-in-out opacity-0 max-h-0 text-gray-600">
                             Memiliki kualitas yang terjamin dengan beberapa keunggulan:
                             <ul>
                                 <li>- asjdasjsda</li>
@@ -36,15 +37,15 @@
 
                     <div class="flex flex-col gap-4">
                         <p class="text-xl font-semibold">Pilih Perangkat:</p>
-                        <div id="device-options" class="gap-3 grid grid-cols-3">
-                            @foreach ($product->produk as $produk)
+                        <div id="perangkat-options" class="gap-3 grid grid-cols-3">
+                            @foreach ($product->perangkat as $perangkat)
                                 <button
-                                    class="device-btn w-full py-2 bg-[#4E5764] text-white rounded-md transition active:scale-95 hover:bg-[#001A41] hover:border-[#7f74ff]"
-                                    data-device-id="{{ $produk->encrypted_id }}"
-                                    data-image="{{ asset('assets/images/' . $produk->gambar_produk) }}">
-                                    {{ $produk->nama_produk }}
+                                    class="perangkat-btn w-full py-2 bg-[#4E5764] text-white rounded-md transition active:scale-95 hover:bg-[#001A41] hover:border-[#7f74ff]"
+                                    data-perangkat-id="{{ $perangkat->encrypted_id }}"
+                                    data-image="{{ asset('assets/images/' . $perangkat->gambar_perangkat) }}">
+                                    {{ $perangkat->nama_perangkat }}
                                     <span class="block text-sm text-gray-400">IDR
-                                        {{ number_format($produk->harga_produk, 0, ',', '.') }}</span>
+                                        {{ number_format($perangkat->harga_perangkat, 0, ',', '.') }}</span>
                                 </button>
                             @endforeach
                         </div>
@@ -71,7 +72,7 @@
                 </div>
 
                 <div class="space-y-4" id="faq-section">
-                    @foreach ($product->faq_product as $faq)
+                    @foreach ($product->faq_produk as $faq)
                         <div class="border-b-[1px] border-black pb-3">
                             <button class="flex justify-between w-full text-left text-lg font-medium text-gray-800 py-3"
                                 onclick="toggleFaq(this)">
@@ -89,18 +90,18 @@
     </div>
 
     <script>
-        const produkData = @json($product->produk);
+        const produkData = @json($product->perangkat);
 
-        const deviceButtons = document.querySelectorAll('.device-btn');
+        const perangkatButtons = document.querySelectorAll('.perangkat-btn');
         const layananContainer = document.getElementById('layanan-options');
         const btnBayar = document.getElementById('btn-bayar');
 
-        let selectedDevice = null;
+        let selectedPerangkat = null;
         let selectedLayanan = null;
 
-        deviceButtons.forEach(button => {
+        perangkatButtons.forEach(button => {
             button.addEventListener('click', () => {
-                selectedDevice = button.dataset.deviceId;
+                selectedPerangkat = button.dataset.perangkatId;
                 selectedLayanan = null;
                 btnBayar.disabled = true;
                 btnBayar.classList.add('bg-gray-400', 'cursor-not-allowed');
@@ -109,33 +110,36 @@
                 const newImage = button.getAttribute('data-image');
                 document.getElementById('main-image').src = newImage;
 
-                document.querySelectorAll('.device-btn').forEach(btn => {
+                document.querySelectorAll('.perangkat-btn').forEach(btn => {
                     btn.classList.remove('ring-2', 'ring-[#7f74ff]', 'bg-[#001A41]');
                     btn.classList.add('bg-[#4E5764]');
                 });
                 button.classList.add('ring-2', 'ring-[#7f74ff]', 'bg-[#001A41]');
                 button.classList.remove('bg-[#4E5764]');
 
+                const layanan = produkData.find(p => p.encrypted_id == selectedPerangkat).layanan;
 
-                // Tampilkan layanan untuk perangkat yang dipilih
-                const layanan = produkData.find(p => p.encrypted_id == selectedDevice).layanan;
-
-                layananContainer.innerHTML = ''; // Kosongkan sebelumnya
+                layananContainer.innerHTML = '';
                 layanan.forEach(item => {
                     const layananBtn = document.createElement('button');
                     layananBtn.className =
-                        'layanan-btn w-full py-2 bg-[#242134] text-white rounded-md transition active:scale-95 hover:bg-[#494366] hover:border-[#7f74ff]';
+                        'layanan-btn w-full py-2 bg-[#4E5764] text-white rounded-md transition active:scale-95 hover:bg-[#001A41] hover:border-[#7f74ff]';
                     layananBtn.setAttribute('data-layanan-id', item.encrypted_id);
                     layananBtn.innerHTML =
                         `${item.deskripsi_layanan}<span class="block text-sm text-gray-400">${item.nama_layanan} - IDR ${new Intl.NumberFormat('id-ID').format(item.harga_layanan)}</span>`;
 
                     layananBtn.addEventListener('click', () => {
                         selectedLayanan = item.encrypted_id;
-                        document.querySelectorAll('.layanan-btn').forEach(btn => btn
-                            .classList.remove('ring-2', 'ring-[#7f74ff]'));
-                        layananBtn.classList.add('ring-2', 'ring-[#7f74ff]');
+                        document.querySelectorAll('.layanan-btn').forEach(btn => {
+                            btn.classList.remove('ring-2', 'ring-[#7f74ff]',
+                                'bg-[#001A41]');
+                            btn.classList.add('bg-[#4E5764]');
+                        });
+                        layananBtn.classList.add('ring-2', 'ring-[#7f74ff]',
+                            'bg-[#001A41]');
+                        layananBtn.classList.remove('bg-[#4E5764]');
 
-                        if (selectedDevice && selectedLayanan) {
+                        if (selectedPerangkat && selectedLayanan) {
                             btnBayar.disabled = false;
                             btnBayar.classList.remove('bg-gray-400', 'cursor-not-allowed');
                             btnBayar.classList.add('bg-[#5a5964]', 'hover:bg-[#6d6677]',
@@ -148,11 +152,10 @@
             });
         });
 
-        // Event listener untuk tombol "Lanjutkan Pembayaran"
         btnBayar.addEventListener('click', () => {
-            if (selectedDevice && selectedLayanan) {
-                console.log(`Perangkat ID: ${selectedDevice}`);
-                console.log(`Layanan ID: ${selectedLayanan}`);
+            if (selectedPerangkat && selectedLayanan) {
+                const url = `/payment-summary/${selectedLayanan}`;
+                window.location.href = url;
             }
         });
 
@@ -177,11 +180,18 @@
 
             const isOpen = !content.classList.contains('hidden');
 
-            document.querySelectorAll('.spec-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('.spec-content').forEach(c => {
+                c.classList.add('hidden', 'opacity-0');
+                c.classList.remove('max-h-96', 'opacity-100');
+            });
+
             document.querySelectorAll('.iconspec').forEach(i => i.innerText = '>');
 
             if (!isOpen) {
                 content.classList.remove('hidden');
+                void content.offsetWidth;
+                content.classList.remove('opacity-0');
+                content.classList.add('max-h-96', 'opacity-100');
                 iconSpec.innerText = 'v';
             }
         }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FaqKategoriProduk;
 use App\Models\KategoriProduk;
+use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 
@@ -11,7 +12,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = KategoriProduk::all()->map(function ($product) {
+        $products = Produk::all()->map(function ($product) {
             $product->encrypted_id = Crypt::encrypt($product->id);
             unset($product->id);
             return $product;
@@ -23,26 +24,22 @@ class ProductController extends Controller
     public function detail($id)
     {
         $id = Crypt::decrypt($id);
-        $product = KategoriProduk::with(['produk', 'produk.layanan', 'faq_product'])->findOrFail($id);
+        $product = Produk::with(['perangkat', 'perangkat.layanan', 'faq_produk'])->findOrFail($id);
 
-        // Encrypt ID kategori & hapus aslinya
         $product->encrypted_id = Crypt::encrypt($product->id);
         unset($product->id);
 
-        // Encrypt semua produk ID & hapus ID asli
-        foreach ($product->produk as $produk) {
-            $produk->encrypted_id = Crypt::encrypt($produk->id);
-            unset($produk->id);
+        foreach ($product->perangkat as $perangkat) {
+            $perangkat->encrypted_id = Crypt::encrypt($perangkat->id);
+            unset($perangkat->id);
 
-            // Encrypt semua layanan dari produk & hapus ID asli
-            foreach ($produk->layanan as $layanan) {
+            foreach ($perangkat->layanan as $layanan) {
                 $layanan->encrypted_id = Crypt::encrypt($layanan->id);
                 unset($layanan->id);
             }
         }
 
-        // Encrypt semua FAQ ID & hapus ID asli
-        foreach ($product->faq_product as $faq) {
+        foreach ($product->faq_produk as $faq) {
             $faq->encrypted_id = Crypt::encrypt($faq->id);
             unset($faq->id);
         }

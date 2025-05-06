@@ -19,7 +19,7 @@
                     <div class="flex space-x-4">
                         <a href="{{ url('/') }}"
                             class="rounded-md px-3 py-2 text-sm font-medium 
-                {{ request()->is('/') ? 'bg-[#ED0226] dark:text-black' : 'text-black hover:bg-[#ED4436] hover:text-white' }}">
+                {{ request()->is('/') ? 'bg-[#ED0226] text-white' : 'text-black hover:bg-[#ED4436] hover:text-white' }}">
                             Beranda
                         </a>
                         <a href="{{ url('/products') }}"

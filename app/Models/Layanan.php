@@ -8,8 +8,8 @@ class Layanan extends Model
 {
     protected $table = 'tbl_layanan';
 
-    public function produk()
+    public function perangkat()
     {
-        return $this->belongsTo(Produk::class, 'produk_id');
+        return $this->belongsTo(Perangkat::class, 'perangkat_id');
     }
 }
