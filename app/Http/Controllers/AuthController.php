@@ -29,6 +29,10 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            $user = Auth::user();
+            $token = $user->createToken('accessToken', [], now()->addDays(7))->plainTextToken;
+            Session(['auth_token' => $token]);
+
             return redirect()->intended('/');
         }
 
@@ -36,6 +40,7 @@ class AuthController extends Controller
             'username' => 'username atau password salah',
         ])->onlyInput('username');
     }
+
 
     public function register(Request $request)
     {
@@ -73,7 +78,7 @@ class AuthController extends Controller
             'nama' => $request->nama,
             'email' => $request->email,
             'no_telp' => $request->no_telp,
-        ]);        
+        ]);
 
         Auth::login($user);
 
