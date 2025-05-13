@@ -8,4 +8,4 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::middleware('auth.sanctum.api')->get('/courier', [BiteShipController::class, 'getCourier']);
+Route::middleware('auth.sanctum.api')->post('/courier', [BiteShipController::class, 'getCourier']);

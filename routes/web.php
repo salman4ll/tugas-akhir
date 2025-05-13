@@ -8,28 +8,41 @@ use App\Http\Controllers\ShippingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return dd(session('auth_token'));
-    ;
+    return view('welcome');
 });
 
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
+Route::get('/login', [AuthController::class, 'showLoginForm'])
+    ->name('login')
+    ->middleware('guest');
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register')->middleware('guest');
+Route::get('/register', [AuthController::class, 'showRegisterForm'])
+    ->name('register')
+    ->middleware('guest');
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->name('logout')
+    ->middleware('auth');
 
 Route::get('/payment-summary', function () {
     return view('product.payment_summary');
 });
 
-Route::get('/payment-summary/{layananId}', [OrderController::class, 'index'])->name('payment.summary')->middleware('auth');
-Route::post('/checkout', [OrderController::class, 'checkout'])->name('checkout')->middleware('auth');
+Route::get('/payment-summary/{layananId}', [OrderController::class, 'index'])
+    ->name('payment.summary')
+    ->middleware('auth');
+Route::post('/checkout', [OrderController::class, 'checkout'])
+    ->name('checkout')
+    ->middleware('auth');
 
-Route::post('/generate-order', [OrderController::class, 'generateOrder'])->name('generate.order')->middleware('auth');
+Route::post('/generate-order', [OrderController::class, 'generateOrder'])
+    ->name('generate.order')
+    ->middleware('auth');
 
-Route::get('/detail_product/{id}', [ProductController::class, 'detail'])->name('products.detail')->middleware('auth');
+Route::get('/detail_product/{id}', [ProductController::class, 'detail'])
+    ->name('products.detail')
+    ->middleware('auth');
 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
