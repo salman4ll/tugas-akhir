@@ -8,8 +8,15 @@ use App\Http\Controllers\ShippingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return dd(session('auth_token'));
-    ;
+    return view('welcome');
+});
+
+Route::get('/user/pesanan', function () {
+    return view('pesanan.index');
+});
+
+Route::get('/user/pesanan/detail', function () {
+    return view('pesanan.detail');
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
