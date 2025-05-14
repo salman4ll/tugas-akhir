@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Layanan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 
@@ -23,7 +24,9 @@ class OrderController extends Controller
         $layanan->perangkat->formatted_price = formatIDR($layanan->perangkat->harga_perangkat);
         unset($layanan->perangkat->id, $layanan->perangkat->produk_id);
 
-        return view('product.payment_summary', compact('layanan'));
+        $user = Auth::user();
+
+        return view('product.payment_summary', compact('layanan', 'user'));
     }
 
     public function checkout (Request $request)

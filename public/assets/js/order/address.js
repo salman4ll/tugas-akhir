@@ -134,6 +134,9 @@ let mainMarker;
 let modalMarker;
 let selectedLatLng;
 
+const accessToken = window.Laravel?.auth_token;
+const perangkatId = window.Laravel?.perangkat_id;
+
 document
     .getElementById("openModalButton")
     .addEventListener("click", function () {
@@ -146,6 +149,116 @@ document.getElementById("cancelButton").addEventListener("click", function () {
     document.getElementById("mapModal").classList.add("hidden");
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+    const radioAmbilDitempat = document.getElementById("ambil_ditempat");
+    const checkboxAmbilDitempat = document.getElementById(
+        "checkbox_ambil_ditempat"
+    );
+    const ambilDitempatWrapper = document.getElementById(
+        "ambilDitempatWrapper"
+    );
+    const alamatPengiriman = document.getElementById("alamatPengiriman");
+
+    function handleAmbilDitempat() {
+        if (radioAmbilDitempat.checked) {
+            ambilDitempatWrapper.style.display = "flex";
+            alamatPengiriman.style.display = "none";
+            checkboxAmbilDitempat.checked = true;
+        } else {
+            ambilDitempatWrapper.style.display = "none";
+            alamatPengiriman.style.display = "grid";
+            checkboxAmbilDitempat.checked = false;
+        }
+    }
+
+    checkboxAmbilDitempat.addEventListener("change", function () {
+        if (checkboxAmbilDitempat.checked) {
+            alamatPengiriman.style.display = "none";
+        } else {
+            ambilDitempatWrapper.style.display = "none";
+            alamatPengiriman.style.display = "grid";
+            radioAmbilDitempat.checked = false;
+        }
+    });
+
+    radioAmbilDitempat.addEventListener("change", handleAmbilDitempat);
+
+    handleAmbilDitempat();
+});
+
+function formatCurrency(value) {
+    return "IDR" + new Intl.NumberFormat("id-ID", {
+        style: "decimal",
+        maximumFractionDigits: 0,
+    }).format(value);
+}
+
+function calculateTotal() {
+    const perangkatPrice = parseInt(document.getElementById("perangkatPrice").dataset.price) || 0;
+    const depositPrice = parseInt(document.getElementById("depositPrice").dataset.price) || 0;
+    const courierPriceText = document.getElementById("selectedCourierPrice").textContent.replace(/[^\d]/g, '');
+    const courierPrice = parseInt(courierPriceText) || 0;
+    const statusPerusahaan = window.Laravel?.status_perusahaan;
+    console.log("Status Perusahaan:", statusPerusahaan);
+
+
+    let totalBiaya = perangkatPrice + depositPrice + courierPrice;
+    console.log("Total Biaya:", totalBiaya);
+    let ppn = Math.round(totalBiaya * 0.11);
+    console.log("PPN:", ppn);
+    let totalKeseluruhan = totalBiaya + ppn;
+    let totalPembayaran = totalKeseluruhan;
+    let ringkasanTotalBiaya = totalBiaya;
+    let ringkasanTotalKeseluruhan = totalKeseluruhan;
+    let ringkasanTotalPembayaran = totalPembayaran;
+
+    // Sesuaikan perhitungan berdasarkan status_perusahaan
+    if (statusPerusahaan === "1") {
+        // Wajib Pungut (WAPU)
+        const pph = (depositPrice + courierPrice) * 0.02;
+        ringkasanTotalPembayaran = ringkasanTotalBiaya - pph;
+        document.getElementById("pph").textContent = `- ${formatCurrency(pph)}`;
+    } else if (statusPerusahaan === "2") {
+        // Non-Wajib Pungut (non-WAPU) tanpa potongan PPH 23
+        ringkasanTotalKeseluruhan = totalKeseluruhan;
+        ringkasanTotalPembayaran = totalKeseluruhan;
+    } else if (statusPerusahaan === "3") {
+        // Non-Wajib Pungut (non-WAPU) potong PPH 23
+        const pph = (depositPrice + courierPrice) * 0.02;
+        ringkasanTotalKeseluruhan = totalKeseluruhan;
+        ringkasanTotalPembayaran = ringkasanTotalKeseluruhan - pph;
+        document.getElementById("pph").textContent = `- ${formatCurrency(pph)}`;
+    }
+
+    // Update elemen-elemen HTML untuk ringkasan
+    document.getElementById("totalBiaya").textContent = formatCurrency(totalBiaya);
+    if (statusPerusahaan === "1") {
+        document.getElementById("ringkasanTotalBiaya").textContent = formatCurrency(ringkasanTotalBiaya);
+    }
+    if (statusPerusahaan === "2" || statusPerusahaan === "3") {
+        document.getElementById("ringkasanTotalKeseluruhan").textContent = formatCurrency(ringkasanTotalKeseluruhan);
+    }
+    document.getElementById("totalKeseluruhan").textContent = formatCurrency(totalKeseluruhan);
+    document.getElementById("ringkasanTotalPembayaran").textContent = formatCurrency(ringkasanTotalPembayaran);
+    document.getElementById("ppn").textContent = formatCurrency(ppn);
+}
+
+function updateCourierPriceListeners() {
+    document.querySelectorAll('input[name="ekspedisi"]').forEach((input) => {
+        input.addEventListener("change", function () {
+            const selectedPrice = parseInt(this.dataset.price) || 0;
+            document.getElementById("selectedCourierPrice").textContent = formatCurrency(selectedPrice);
+            calculateTotal();
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateCourierPriceListeners();
+    calculateTotal();
+});
+
+
 document
     .getElementById("saveLocationButton")
     .addEventListener("click", function () {
@@ -153,13 +266,88 @@ document
             const lat = selectedLatLng.lat();
             const lng = selectedLatLng.lng();
 
+            const button = document.getElementById("saveLocationButton");
+            const buttonText = button.querySelector(".button-text");
+            const spinner = button.querySelector(".spinner");
+
+            // Tampilkan loading
+            button.disabled = true;
+            buttonText.textContent = "Memuat...";
+            spinner.classList.remove("hidden");
+
             document.getElementById("latitude").value = lat;
             document.getElementById("longitude").value = lng;
 
+            // Panggil API /api/courier
+            fetch("/api/courier", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    // Jika butuh otentikasi, tambahkan di sini:
+                    Authorization: "Bearer " + accessToken,
+                },
+                body: JSON.stringify({
+                    destination_latitude: lat,
+                    destination_longitude: lng,
+                    device_id: perangkatId,
+                }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log("Respon API courier:", data);
+
+                    const courierList = document.getElementById("courierList");
+                    // courierList.innerHTML = ""; // Kosongkan sebelum isi ulang
+
+                    if (data.data) {
+                        data.data.forEach((courier, index) => {
+                            const courierId = `${courier.id}`;
+                            const price = new Intl.NumberFormat("id-ID", {
+                                style: "currency",
+                                currency: "IDR",
+                                maximumFractionDigits: 0,
+                            }).format(courier.price);
+
+                            const courierHTML = `
+                <label for="${courierId}" class="flex flex-row justify-between items-start gap-4 cursor-pointer p-2 rounded hover:bg-gray-50">
+                    <div class="flex flex-row gap-3">
+                        <input type="radio" name="ekspedisi" id="${courierId}" value="${courierId}" data-price="${courier.price}">
+                        <div class="flex flex-col">
+                            <label for="${courierId}" class="font-medium text-base">${courier.courier_name} - ${courier.courier_service_name}</label>
+                            <label for="${courierId}" class="text-sm text-gray-500">Estimasi ${courier.duration}</label>
+                        </div>
+                    </div>
+                    <div class="text-md font-bold">${price}</div>
+                </label>
+            `;
+                            courierList.insertAdjacentHTML(
+                                "beforeend",
+                                courierHTML
+                            );
+                        });
+                        updateCourierPriceListeners();
+                        document
+                            .getElementById("mapModal")
+                            .classList.add("hidden");
+                    } else {
+                        courierList.innerHTML = `<p class="text-red-500">Tidak ada layanan ekspedisi yang tersedia.</p>`;
+                    }
+                })
+
+                .catch((error) => {
+                    console.error("Gagal memanggil API courier:", error);
+                })
+                .finally(() => {
+                    // Kembalikan tombol ke normal
+                    button.disabled = false;
+                    buttonText.textContent = "Gunakan Lokasi";
+                    spinner.classList.add("hidden");
+                });
+
+            // Update posisi marker utama
             mainMap.setCenter(selectedLatLng);
             mainMarker.setPosition(selectedLatLng);
         }
-        document.getElementById("mapModal").classList.add("hidden");
     });
 
 function initMap() {

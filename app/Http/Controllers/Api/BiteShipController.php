@@ -20,7 +20,7 @@ class BiteShipController extends Controller
         $validated = Validator::make($request->all(), [
             'destination_latitude' => 'required|numeric',
             'destination_longitude' => 'required|numeric',
-            // 'perangkat_id' => 'required|string',
+            'device_id' => 'required|string',
         ]);
         
         if ($validated->fails()) {
@@ -31,8 +31,8 @@ class BiteShipController extends Controller
             ], 422);
         }
 
-        // $perangkat_id = Crypt::decrypt($request->perangkat_id);
-        // $perangkat = Perangkat::find($perangkat_id);
+        $device_id = Crypt::decrypt($request->device_id);
+        $perangkat = Perangkat::find($device_id);
 
         $response = Http::withHeader('Authorization', $token)
             ->post($url, [
@@ -43,8 +43,8 @@ class BiteShipController extends Controller
                 "couriers" => "jne", // You can make this dynamic
                 "items" => [
                     [
-                        // "name" => $perangkat->nama_perangkat,
-                        "weight" => 12000,
+                        "name" => $perangkat->nama_perangkat,
+                        "weight" => 4000,
                         "quantity" => 1,
                     ]
                 ]
