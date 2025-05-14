@@ -11,6 +11,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/user/pesanan', function () {
+    return view('pesanan.index');
+});
+
+Route::get('/user/pesanan/detail', function () {
+    return view('pesanan.detail');
+});
+
 Route::get('/login', [AuthController::class, 'showLoginForm'])
     ->name('login')
     ->middleware('guest');
