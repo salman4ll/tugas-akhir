@@ -54,7 +54,7 @@ class AuthController extends Controller
             'email' => ['required', 'email', 'unique:tbl_cp_customer,email'],
             'no_telp' => ['required', 'unique:tbl_cp_customer,no_telp'],
             'provinsi_id' => ['required'],
-            'kota_id' => ['required'],
+            'kabupaten_id' => ['required'],
             'kecamatan_id' => ['required'],
             'kelurahan_id' => ['required'],
             'password' => ['required', 'min:6', 'confirmed'],
@@ -68,7 +68,7 @@ class AuthController extends Controller
             'username' => $request->username,
             'password' => Hash::make($request->password),
             'provinsi_id' => $request->provinsi_id,
-            'kota_id' => $request->kota_id,
+            'kabupaten_id' => $request->kabupaten_id,
             'kecamatan_id' => $request->kecamatan_id,
             'kelurahan_id' => $request->kelurahan_id,
         ]);

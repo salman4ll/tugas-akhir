@@ -1,7 +1,7 @@
 function validateAlamatFields() {
     const fields = [
         "provinsi_id",
-        "kota_id",
+        "kabupaten_id",
         "kecamatan_id",
         "kelurahan_id",
     ];
@@ -41,14 +41,14 @@ function validateAlamatFields() {
 
 function initAddressDropdowns() {
     const provinsiSelect = document.getElementById("provinsi_id");
-    const kotaSelect = document.getElementById("kota_id");
+    const kabupatenSelect = document.getElementById("kabupaten_id");
     const kecamatanSelect = document.getElementById("kecamatan_id");
     const kelurahanSelect = document.getElementById("kelurahan_id");
 
-    if (!provinsiSelect || !kotaSelect || !kecamatanSelect || !kelurahanSelect)
+    if (!provinsiSelect || !kabupatenSelect || !kecamatanSelect || !kelurahanSelect)
         return;
 
-    resetAndDisableDropdowns("kota_id", "kecamatan_id", "kelurahan_id");
+    resetAndDisableDropdowns("kabupaten_id", "kecamatan_id", "kelurahan_id");
 
     fetch("/provinces")
         .then((res) => res.json())
@@ -63,16 +63,16 @@ function initAddressDropdowns() {
         });
 
     provinsiSelect.addEventListener("change", function () {
-        resetAndDisableDropdowns("kota_id", "kecamatan_id", "kelurahan_id");
+        resetAndDisableDropdowns("kabupaten_id", "kecamatan_id", "kelurahan_id");
         if (this.value) {
-            kotaSelect.disabled = false;
+            kabupatenSelect.disabled = false;
             fetch(`/cities/${this.value}`)
                 .then((res) => res.json())
-                .then((data) => populateDropdown(kotaSelect, data));
+                .then((data) => populateDropdown(kabupatenSelect, data));
         }
     });
 
-    kotaSelect.addEventListener("change", function () {
+    kabupatenSelect.addEventListener("change", function () {
         resetAndDisableDropdowns("kecamatan_id", "kelurahan_id");
         if (this.value) {
             kecamatanSelect.disabled = false;

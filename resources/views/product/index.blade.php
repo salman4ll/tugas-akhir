@@ -49,7 +49,7 @@
                                     <img src="{{ asset('assets/images/' . $product->image) }}"
                                         alt="{{ $product->nama_kategori ?? 'Produk' }}" class="w-16 h-16 object-contain">
                                     <div>
-                                        <h4 class="text-lg font-bold">{{ $product->nama_kategori ?? 'Nama Produk' }}</h4>
+                                        <h4 class="text-lg font-bold">{{ $product->nama_produk ?? 'Nama Produk' }}</h4>
                                         <p class="text-sm font-semibold">Key Feature:</p>
                                         <p class="text-sm text-gray-600">
                                             {{ $product->deskripsi ?? 'Deskripsi tidak tersedia.' }}</p>

@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Order extends Model
+{
+    protected $table = 'tbl_order';
+
+    protected $fillable = [
+        'customer_id',
+        'layanan_id',
+        'perangkat_id',
+        'alamat_customer_id',
+        'cp_customer_id',
+        'quantity',
+        'order_date',
+        'total_harga',
+        'tanggal_pembayaran',
+        'riwayat_status_order_id',
+        'unique_order',
+        'snap_token',
+        'payment_status',
+        'payment_url',
+        'sn_kit',
+        'sid',
+        'is_ttd',
+        'nama_node',
+        'alamat_node',
+        'jenis_pengiriman',
+        'metode_pembayaran',
+        'nomor_resi',
+    ];
+}

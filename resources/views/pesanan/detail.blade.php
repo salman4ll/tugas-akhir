@@ -147,10 +147,10 @@
 
                                     <div
                                         class="flex flex-col py-2 px-4 col-span-6 w-full bg-gray-300 text-sm border border-[#2E2E2E] rounded-md focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-400 transition">
-                                        <label for="kota_id" class=" text-xs">
-                                            Kabupaten/Kota<span class="text-red-500">*</span>
+                                        <label for="kabupaten_id" class=" text-xs">
+                                            Kabupaten/kabupaten<span class="text-red-500">*</span>
                                         </label>
-                                        <select name="kota_id" id="kota_id" class="bg-transparent appearance-none"
+                                        <select name="kabupaten_id" id="kabupaten_id" class="bg-transparent appearance-none"
                                             required>
                                         </select>
                                     </div>

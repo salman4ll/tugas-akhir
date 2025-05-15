@@ -6,11 +6,11 @@
     </select>
 </div>
 
-<!-- Kota/Kabupaten -->
+<!-- kabupaten/Kabupaten -->
 <div class="flex flex-col gap-2">
-    <label for="kota_id" class="text-[#4E5764] font-extrabold">Kota/Kabupaten*</label>
-    <select id="kota_id" name="kota_id" class="input border p-2 rounded-lg w-full">
-        <option value="">Pilih Kota/Kabupaten</option>
+    <label for="kabupaten_id" class="text-[#4E5764] font-extrabold">kabupaten/Kabupaten*</label>
+    <select id="kabupaten_id" name="kabupaten_id" class="input border p-2 rounded-lg w-full">
+        <option value="">Pilih kabupaten/Kabupaten</option>
     </select>
 </div>
 

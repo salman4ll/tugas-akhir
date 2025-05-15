@@ -59,13 +59,15 @@
                     <div class="md:col-span-6 col-span-12 flex flex-col gap-2">
                         <p class="font-bold text-xl">Penerima</p>
 
-                        <div class="flex flex-row gap-2 items-center">
-                            <input type="checkbox" name="narahubung" id="narahubung">
-                            <label for="narahubung" class="text-sm">Sama seperti narahubung</label>
-                        </div>
-
                         <form action="{{ route('checkout') }}" method="POST" id="form-checkout">
                             @csrf
+                            <input type="hidden" name="layanan_id" value="{{ $layanan->encrypted_id }}">
+                            <input type="hidden" name="perangkat_id" value="{{ $layanan->perangkat->encrypted_id }}">
+                            <div class="flex flex-row gap-2 items-center">
+                                <input type="checkbox" name="isCpUser" id="isCpUser" value="1">
+                                <label for="isCpUser" class="text-sm">Sama seperti narahubung</label>
+                            </div>
+
                             <div class="flex flex-col gap-2 text-black">
                                 <div
                                     class="flex flex-col py-2 px-4 w-full bg-gray-300 text-sm border border-[#2E2E2E] rounded-md focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-400 transition">
@@ -80,11 +82,11 @@
 
                                 <div
                                     class="flex flex-col py-2 px-4 w-full bg-gray-300 text-sm border border-[#2E2E2E] rounded-md focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-400 transition">
-                                    <label for="telpon"
+                                    <label for="no_telp"
                                         class="duration-300 transform scale-75 top-0 left-4 z-10 origin-[0] peer-placeholder-shown:translate-y-3 peer-placeholder-shown:scale-100 peer-placeholder-shown:text-white/70 peer-focus:scale-75 peer-focus:-translate-y-0">
                                         Nomor Telepon<span class="text-red-500">*</span>
                                     </label>
-                                    <input type="tel" name="telpon" id="telpon"
+                                    <input type="tel" name="no_telp" id="no_telp"
                                         class="bg-transparent peer placeholder-transparent focus:outline-none"
                                         placeholder=" " required />
                                 </div>
@@ -108,15 +110,16 @@
 
                                     <div class="flex flex-row gap-2 items-center" id="ambilDitempatWrapper"
                                         style="display: none;">
-                                        <input type="checkbox" name="checkbox_ambil_ditempat" id="checkbox_ambil_ditempat">
+                                        <input type="checkbox" name="checkbox_ambil_ditempat" id="checkbox_ambil_ditempat" 
+                                            value="1">
                                         <label for="checkbox_ambil_ditempat" class="text-sm">Ambil di Tempat</label>
                                     </div>
 
 
                                     <div id="alamatPengiriman" class="grid grid-cols-12 gap-2">
                                         <div class="flex flex-row col-span-12 gap-2 items-center">
-                                            <input type="checkbox" name="narahubung" id="narahubung">
-                                            <label for="narahubung" class="text-sm">Sama seperti alamat
+                                            <input type="checkbox" name="isAddressUser" id="isAddressUser" value="1">
+                                            <label for="isAddressUser" class="text-sm">Sama seperti alamat
                                                 rumah/perusahaan</label>
                                         </div>
                                         <div
@@ -132,10 +135,10 @@
 
                                         <div
                                             class="flex flex-col py-2 px-4 col-span-6 w-full bg-gray-300 text-sm border border-[#2E2E2E] rounded-md focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-400 transition">
-                                            <label for="kota_id" class=" text-xs">
-                                                Kabupaten/Kota<span class="text-red-500">*</span>
+                                            <label for="kabupaten_id" class=" text-xs">
+                                                Kabupaten/kabupaten<span class="text-red-500">*</span>
                                             </label>
-                                            <select name="kota_id" id="kota_id" class="bg-transparent appearance-none"
+                                            <select name="kabupaten_id" id="kabupaten_id" class="bg-transparent appearance-none"
                                                 required>
                                             </select>
                                         </div>
@@ -221,9 +224,8 @@
                                     <div class="relative w-full group col-span-12 mt-6 gap-4 flex flex-col">
                                         <p class="font-bold text-xl">Pilih Ekspedisi</p>
 
-                                        <div id="courierList"
-                                            class="flex flex-col gap-4 border border-gray-300 rounded-md p-2">
-                                            <!-- Opsi default: Ambil di Tempat -->
+                                        <!-- Tetap tampil selalu -->
+                                        <div id="opsiAmbilDiTempat">
                                             <label for="ambil_ditempat"
                                                 class="flex flex-row justify-between items-start gap-4 cursor-pointer p-2 rounded hover:bg-gray-50">
                                                 <div class="flex flex-row gap-3">
@@ -239,6 +241,12 @@
                                                 <div class="text-md font-bold text-green-600">Gratis</div>
                                             </label>
                                         </div>
+
+                                        <!-- Ini hanya untuk ekspedisi hasil API -->
+                                        <div id="courierList" class="flex flex-col gap-4">
+                                            <!-- Isi dari fetch / API -->
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -402,6 +410,8 @@
                 auth_token: "{{ Session::get('auth_token') }}",
                 perangkat_id: "{{ $layanan->perangkat->encrypted_id }}",
                 status_perusahaan: "{{ $user->status_perusahaan }}",
+                latitude: "{{ $user->latitude }}",
+                longitude: "{{ $user->longitude }}",
             };
         </script>
         <script src="{{ asset('assets/js/order/address.js') }}"></script>

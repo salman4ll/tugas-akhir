@@ -29,7 +29,7 @@ class User extends Authenticatable
         'password',
         'alamat',
         'provinsi_id',
-        'kota_id',
+        'kabupaten_id',
         'kecamatan_id',
         'kelurahan_id',
         'latitude',
