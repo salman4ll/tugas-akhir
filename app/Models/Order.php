@@ -23,6 +23,7 @@ class Order extends Model
         'snap_token',
         'payment_status',
         'payment_url',
+        'payment_method',
         'sn_kit',
         'sid',
         'is_ttd',
