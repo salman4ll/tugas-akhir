@@ -198,9 +198,9 @@ class OrderController extends Controller
                     'gross_amount' => $totalPembayaran,
                 ],
                 'customer_details' => [
-                    'first_name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $request->no_telp,
+                    'first_name' => $request->isCpUser ? $cpCustomer->name : $request->nama,
+                    'email' => $request->isCpUser ? $cpCustomer->email : $request->email,
+                    'phone' => $request->isCpUser ? $cpCustomer->no_telp : $request->no_telp,
                 ],
                 'item_details' => [
                     [
@@ -279,5 +279,26 @@ class OrderController extends Controller
                 'message' => 'Gagal melakukan checkout: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function getOrder(Request $request)
+    {
+        $user = Auth::user();
+        $orders = Order::with(['layanan', 'perangkat', 'alamatCustomer', 'cpCustomer'])
+            ->where('customer_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('product.order_history', compact('orders'));
+    }
+
+    public function getOrderDetail($orderId)
+    {
+        $decrypted_id = Crypt::decrypt($orderId);
+        $order = Order::with(['layanan', 'perangkat', 'alamatCustomer', 'cpCustomer'])
+            ->where('unique_order', $decrypted_id)
+            ->firstOrFail();
+
+        return view('product.order_detail', compact('order'));
     }
 }
