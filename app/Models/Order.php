@@ -33,4 +33,34 @@ class Order extends Model
         'metode_pembayaran',
         'nomor_resi',
     ];
+
+    public function customer()
+    {
+        return $this->belongsTo(User::class, 'customer_id');
+    }
+
+    public function layanan()
+    {
+        return $this->belongsTo(Layanan::class, 'layanan_id');
+    }
+
+    public function perangkat()
+    {
+        return $this->belongsTo(Perangkat::class, 'perangkat_id');
+    }
+
+    public function alamatCustomer()
+    {
+        return $this->belongsTo(Address::class, 'alamat_customer_id');
+    }
+
+    public function cpCustomer()
+    {
+        return $this->belongsTo(CpCustomer::class, 'cp_customer_id');
+    }
+    
+    public function riwayatStatusOrder()
+    {
+        return $this->hasMany(RiwayatStatusOrder::class, 'order_id');
+    }
 }

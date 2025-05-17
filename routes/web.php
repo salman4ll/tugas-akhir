@@ -11,13 +11,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/user/pesanan', function () {
-    return view('pesanan.index');
-});
+Route::get('/user/pesanan', [OrderController::class, 'getOrder'])
+    ->name('user.pesanan')
+    ->middleware('auth');
 
-Route::get('/user/pesanan/detail', function () {
-    return view('pesanan.detail');
-});
+Route::get('/user/pesanan/detail', [OrderController::class, 'getOrderDetail'])
+    ->name('user.pesanan.detail')
+    ->middleware('auth');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])
     ->name('login')

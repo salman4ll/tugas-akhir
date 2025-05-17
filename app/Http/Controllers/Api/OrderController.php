@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\RiwayatStatusOrder;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -40,6 +41,13 @@ class OrderController extends Controller
                     'payment_status' => 'success',
                     'payment_method' => $request->payment_type,
                 ]);
+
+                RiwayatStatusOrder::create([
+                    'order_id' => $order->id,
+                    'status_id' => 2,
+                    'keterangan' => 'Pembayaran Berhasil',
+                    'tanggal' => now(),
+                ]);
                 break;
             case 'pending':
                 $order->update([
@@ -52,17 +60,38 @@ class OrderController extends Controller
                     'payment_status' => 'failed',
                     'payment_method' => $request->payment_type,
                 ]);
+
+                RiwayatStatusOrder::create([
+                    'order_id' => $order->id,
+                    'status_id' => 9,
+                    'keterangan' => 'Pembayaran Gagal',
+                    'tanggal' => now(),
+                ]);
                 break;
             case 'expire':
                 $order->update([
                     'payment_status' => 'expired',
                     'payment_method' => $request->payment_type,
                 ]);
+
+                RiwayatStatusOrder::create([
+                    'order_id' => $order->id,
+                    'status_id' => 9,
+                    'keterangan' => 'Pembayaran Kadaluarsa',
+                    'tanggal' => now(),
+                ]);
                 break;
             case 'cancel':
                 $order->update([
                     'payment_status' => 'canceled',
                     'payment_method' => $request->payment_type,
+                ]);
+
+                RiwayatStatusOrder::create([
+                    'order_id' => $order->id,
+                    'status_id' => 9,
+                    'keterangan' => 'Pembayaran Dibatalkan',
+                    'tanggal' => now(),
                 ]);
                 break;
             default:

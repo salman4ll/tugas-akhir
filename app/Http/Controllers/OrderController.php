@@ -6,6 +6,7 @@ use App\Models\Address;
 use App\Models\CpCustomer;
 use App\Models\Layanan;
 use App\Models\Order;
+use App\Models\RiwayatStatusOrder;
 use App\Models\ShippingMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -247,6 +248,13 @@ class OrderController extends Controller
                 ]);
             }
 
+            $riwayatStatusOrder = RiwayatStatusOrder::create([
+                'order_id' => $orderId,
+                'status_id' => 1,
+                'keterangan' => 'Order created',
+                'tanggal' => now(),
+            ]);
+
             Order::create([
                 'customer_id' => $user->id,
                 'layanan_id' => $layananId,
@@ -257,7 +265,7 @@ class OrderController extends Controller
                 'order_date' => now(),
                 'total_harga' => $totalPembayaran,
                 'tanggal_pembayaran' => null,
-                'riwayat_status_order_id' => 1,
+                'riwayat_status_order_id' => $riwayatStatusOrder->id,
                 'unique_order' => $orderId,
                 'snap_token' => $chargeResponse->token,
                 'payment_status' => 0,
@@ -284,21 +292,48 @@ class OrderController extends Controller
     public function getOrder(Request $request)
     {
         $user = Auth::user();
-        $orders = Order::with(['layanan', 'perangkat', 'alamatCustomer', 'cpCustomer'])
-            ->where('customer_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
 
-        return view('product.order_history', compact('orders'));
+        $sort = $request->input('sort', 'desc');
+        $statusFilter = $request->input('status'); 
+        // Kelompok status
+        $statusGroups = [
+            'belum_dibayar' => [1],
+            'diproses' => [2, 3, 4],
+            'dikirim' => [5, 6, 7],
+            'selesai' => [8, 9],
+        ];
+
+        $query = Order::with([
+            'layanan',
+            'perangkat',
+            'perangkat.produk',
+            'riwayatStatusOrder',
+            'riwayatStatusOrder.status'
+        ])
+            ->where('customer_id', $user->id);
+
+        // Filter status berdasarkan kategori
+        if ($statusFilter && isset($statusGroups[$statusFilter])) {
+            $query->whereHas('riwayatStatusOrder', function ($q) use ($statusGroups, $statusFilter) {
+                $q->whereIn('status_id', $statusGroups[$statusFilter]);
+            });
+        }
+
+        $query->orderBy('created_at', $sort);
+        $orders = $query->paginate(10)->appends($request->query());
+
+        dd($orders);
+        return view('pesanan.index', compact('orders', 'sort', 'statusFilter'));
     }
+
 
     public function getOrderDetail($orderId)
     {
-        $decrypted_id = Crypt::decrypt($orderId);
-        $order = Order::with(['layanan', 'perangkat', 'alamatCustomer', 'cpCustomer'])
-            ->where('unique_order', $decrypted_id)
-            ->firstOrFail();
+        // $decrypted_id = Crypt::decrypt($orderId);
+        // $order = Order::with(['layanan', 'perangkat', 'alamatCustomer', 'cpCustomer'])
+        //     ->where('unique_order', $decrypted_id)
+        //     ->firstOrFail();
 
-        return view('product.order_detail', compact('order'));
+        return view('pesanan.detail');
     }
 }
