@@ -30,6 +30,7 @@ class Order extends Model
         'nama_node',
         'alamat_node',
         'jenis_pengiriman',
+        'metode_pengiriman_id',
         'metode_pembayaran',
         'nomor_resi',
     ];
@@ -58,9 +59,19 @@ class Order extends Model
     {
         return $this->belongsTo(CpCustomer::class, 'cp_customer_id');
     }
-    
+
     public function riwayatStatusOrder()
     {
         return $this->hasMany(RiwayatStatusOrder::class, 'order_id');
+    }
+
+    public function statusTerakhir()
+    {
+        return $this->hasOne(RiwayatStatusOrder::class)->latestOfMany();
+    }
+
+    public function metodePengiriman()
+    {
+        return $this->belongsTo(MetodePengiriman::class, 'metode_pengiriman_id');
     }
 }

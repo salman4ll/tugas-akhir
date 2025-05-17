@@ -47,35 +47,47 @@
 
 
             <div class="flex flex-col gap-10 mt-10">
-                @foreach ($orders as $order)
-                    <div class="w-full flex items-center justify-between">
-                        <button onclick="window.location.href = '{{ route('user.pesanan.detail', $order->id) }}'"
-                            class="flex gap-5 items-center">
-                            <img src="/assets/images/produk-link.png" alt="" class="w-[200px]">
-                            <div class="flex flex-col gap-2 text-left">
-                                <p class="font-bold text-2xl">{{ $order->layanan->nama ?? 'Tanpa Layanan' }}</p>
-                                <p class="flex gap-3 text-md items-center text-purple-800">
-                                    <span>o</span>{{ $order->riwayatStatusOrder->status->nama ?? 'Status Tidak Diketahui' }}
-                                </p>
-                                <p class="text-sm text-gray-600">Pesanan dibuat tanggal
-                                    {{ $order->created_at->translatedFormat('d F Y') }}</p>
-                                <p class="text-sm text-gray-600">ID Pesanan: {{ $order->id }}</p>
-                            </div>
-                        </button>
+                @if ($orders->count() > 0)
+                    @foreach ($orders as $order)
+                        <div class="w-full flex items-center justify-between">
+                            <button onclick="window.location.href = '/user/pesanan/detail/{{ $order->unique_order }}'"
+                                class="flex gap-5 items-center">
+                                <img src="/assets/images/produk-link.png" alt="" class="w-[200px]">
+                                <div class="flex flex-col gap-2 text-left">
+                                    <p class="font-bold text-2xl">
+                                        {{ $order->perangkat->produk->nama_produk ?? 'Tanpa Layanan' }}</p>
 
-                        <div class="flex flex-col gap-3 items-center w-[17%]">
-                            <p class="font-bold text-3xl">IDR{{ number_format($order->total_harga, 0, ',', '.') }}</p>
-                            @if ($order->riwayatStatusOrder->status->id == 1)
-                                <button class="bg-blue-400 text-white px-10 py-3 rounded-lg">Bayar Sekarang</button>
-                            @else
-                                <button
-                                    class="bg-blue-400 opacity-40 cursor-not-allowed text-white px-10 py-3 rounded-lg">Bayar
-                                    Sekarang</button>
-                            @endif
+                                    <p class="flex gap-3 text-md items-center text-purple-800">
+                                        <span>o</span>{{ $order->statusTerakhir?->status?->nama ?? 'Status Tidak Diketahui' }}
+                                    </p>
+
+                                    <p class="text-sm text-gray-600">Pesanan dibuat tanggal
+                                        {{ $order->created_at->translatedFormat('d F Y') }}</p>
+                                    <p class="text-sm text-gray-600">ID Pesanan: {{ $order->unique_order }}</p>
+                                </div>
+                            </button>
+
+                            <div class="flex flex-col gap-3 items-center w-[17%]">
+                                <p class="font-bold text-3xl">IDR{{ number_format($order->total_harga, 0, ',', '.') }}</p>
+                                @if ($order->statusTerakhir?->status?->id == 1)
+                                    <button class="bg-blue-400 text-white px-10 py-3 rounded-lg" onclick="window.location.href = '{{ $order->payment_url }}'">Bayar Sekarang</button>
+                                @else
+                                    <button
+                                        class="bg-blue-400 opacity-40 cursor-not-allowed text-white px-10 py-3 rounded-lg">Bayar
+                                        Sekarang</button>
+                                @endif
+
+                            </div>
                         </div>
+                    @endforeach
+                @else
+                    <div class="text-center text-gray-500 py-20">
+                        <p class="text-xl font-semibold">Data pesanan tidak ditemukan.</p>
+                        <p>Silakan coba dengan filter atau kata kunci lain.</p>
                     </div>
-                @endforeach
+                @endif
             </div>
+
 
             <div class="mt-10">
                 {{ $orders->links() }}
@@ -83,10 +95,4 @@
 
         </div>
     </div>
-
-    <script>
-        function goToDetailOrder() {
-            window.location.href = '/user/pesanan/detail';
-        }
-    </script>
 @endsection

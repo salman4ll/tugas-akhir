@@ -192,7 +192,7 @@ class OrderController extends Controller
                 $totalPembayaran = $totalBiaya - $pph + $ppn;
             }
 
-            $orderId = 'ORDER-' . uniqid();
+            $orderId = 'ORDER-' . strtoupper(bin2hex(random_bytes(5)));
             $transactionData = [
                 'transaction_details' => [
                     'order_id' => $orderId,
@@ -267,6 +267,7 @@ class OrderController extends Controller
                 'sid' => null,
                 'is_ttd' => 0,
                 'jenis_pengiriman' => $jenisPengiriman,
+                'metode_pengiriman_id' => $jenisPengiriman == 'ekspedisi' ? $request->ekspedisi : null,
             ]);
 
             $riwayatStatusOrder = RiwayatStatusOrder::create([
@@ -298,8 +299,8 @@ class OrderController extends Controller
         $user = Auth::user();
 
         $sort = $request->input('sort', 'desc');
-        $statusFilter = $request->input('status'); 
-        // Kelompok status
+        $statusFilter = $request->input('status');
+
         $statusGroups = [
             'belum_dibayar' => [1],
             'diproses' => [2, 3, 4],
@@ -311,14 +312,11 @@ class OrderController extends Controller
             'layanan',
             'perangkat',
             'perangkat.produk',
-            'riwayatStatusOrder',
-            'riwayatStatusOrder.status'
-        ])
-            ->where('customer_id', $user->id);
+            'statusTerakhir.status'
+        ])->where('customer_id', $user->id);
 
-        // Filter status berdasarkan kategori
         if ($statusFilter && isset($statusGroups[$statusFilter])) {
-            $query->whereHas('riwayatStatusOrder', function ($q) use ($statusGroups, $statusFilter) {
+            $query->whereHas('statusTerakhir', function ($q) use ($statusGroups, $statusFilter) {
                 $q->whereIn('status_id', $statusGroups[$statusFilter]);
             });
         }
@@ -326,18 +324,18 @@ class OrderController extends Controller
         $query->orderBy('created_at', $sort);
         $orders = $query->paginate(10)->appends($request->query());
 
-        dd($orders);
         return view('pesanan.index', compact('orders', 'sort', 'statusFilter'));
     }
 
 
-    public function getOrderDetail($orderId)
+    public function getOrderDetail($id)
     {
         // $decrypted_id = Crypt::decrypt($orderId);
         // $order = Order::with(['layanan', 'perangkat', 'alamatCustomer', 'cpCustomer'])
         //     ->where('unique_order', $decrypted_id)
         //     ->firstOrFail();
 
+        dd($id);
         return view('pesanan.detail');
     }
 }

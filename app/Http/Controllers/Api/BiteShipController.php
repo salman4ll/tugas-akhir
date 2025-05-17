@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\Perangkat;
 use App\Models\ShippingMethod;
 use Illuminate\Http\Request;
@@ -96,5 +97,27 @@ class BiteShipController extends Controller
             'code' => 200,
             'data' => $filtered,
         ], 200);
+    }
+
+    public function createOrder(Request $request)
+    {
+        $url = env('BITESHIP_URL') . '/v1/orders';
+        $token = env('BITESHIP_AUTH_TOKEN');
+
+        $validated = Validator::make($request->all(), [
+            'order_id' => 'required|string',
+        ]);
+
+        if ($validated->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 422,
+                'message' => $validated->errors(),
+            ], 422);
+        }
+
+        $order = Order::with('metodePengiriman')
+            ->where('unique_order', $request->order_id)
+            ->first();
     }
 }

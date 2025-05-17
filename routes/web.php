@@ -15,7 +15,7 @@ Route::get('/user/pesanan', [OrderController::class, 'getOrder'])
     ->name('user.pesanan')
     ->middleware('auth');
 
-Route::get('/user/pesanan/detail', [OrderController::class, 'getOrderDetail'])
+Route::get('/user/pesanan/detail/{id}', [OrderController::class, 'getOrderDetail'])
     ->name('user.pesanan.detail')
     ->middleware('auth');
 
