@@ -248,14 +248,7 @@ class OrderController extends Controller
                 ]);
             }
 
-            $riwayatStatusOrder = RiwayatStatusOrder::create([
-                'order_id' => $orderId,
-                'status_id' => 1,
-                'keterangan' => 'Order created',
-                'tanggal' => now(),
-            ]);
-
-            Order::create([
+            $order = Order::create([
                 'customer_id' => $user->id,
                 'layanan_id' => $layananId,
                 'perangkat_id' => $perangkat->id,
@@ -265,7 +258,7 @@ class OrderController extends Controller
                 'order_date' => now(),
                 'total_harga' => $totalPembayaran,
                 'tanggal_pembayaran' => null,
-                'riwayat_status_order_id' => $riwayatStatusOrder->id,
+                'riwayat_status_order_id' => null,
                 'unique_order' => $orderId,
                 'snap_token' => $chargeResponse->token,
                 'payment_status' => 0,
@@ -274,6 +267,17 @@ class OrderController extends Controller
                 'sid' => null,
                 'is_ttd' => 0,
                 'jenis_pengiriman' => $jenisPengiriman,
+            ]);
+
+            $riwayatStatusOrder = RiwayatStatusOrder::create([
+                'order_id' => $order->id,
+                'status_id' => 1,
+                'keterangan' => 'Order created',
+                'tanggal' => now(),
+            ]);
+
+            $order->update([
+                'riwayat_status_order_id' => $riwayatStatusOrder->id,
             ]);
 
             DB::commit();
