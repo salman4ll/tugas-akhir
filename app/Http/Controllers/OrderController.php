@@ -253,7 +253,7 @@ class OrderController extends Controller
                 'customer_id' => $user->id,
                 'layanan_id' => $layananId,
                 'perangkat_id' => $perangkat->id,
-                'alamat_customer_id' => $request->isAddressUser ? $addressUser->id : ($address ? $address->id : null),
+                'alamat_customer_id' => $request->isAddressUser && $jenisPengiriman == 'ekspedisi' ? $addressUser->id : ($address ? $address->id : null),
                 'cp_customer_id' => $request->isCpUser ? $cpCustomer->id : ($createCpCustomer ? $createCpCustomer->id : null),
                 'quantity' => 1,
                 'order_date' => now(),
@@ -269,6 +269,9 @@ class OrderController extends Controller
                 'is_ttd' => 0,
                 'jenis_pengiriman' => $jenisPengiriman,
                 'metode_pengiriman_id' => $jenisPengiriman == 'ekspedisi' ? $request->ekspedisi : null,
+                'biaya_pengiriman' => $shippingCost,
+                'ppn' => $ppn,
+                'pph' => $pph,
             ]);
 
             $riwayatStatusOrder = RiwayatStatusOrder::create([
@@ -331,12 +334,54 @@ class OrderController extends Controller
 
     public function getOrderDetail($id)
     {
-        // $decrypted_id = Crypt::decrypt($orderId);
-        // $order = Order::with(['layanan', 'perangkat', 'alamatCustomer', 'cpCustomer'])
-        //     ->where('unique_order', $decrypted_id)
-        //     ->firstOrFail();
+        $user = Auth::user();
+        $status_perusahaan = $user->status_perusahaan;
+        $order = Order::with([
+            'layanan',
+            'perangkat',
+            'perangkat.produk',
+            'riwayatStatusOrder',
+            'statusTerakhir.status',
+            'cpCustomer',
+            'alamatCustomer',
+            'alamatCustomer.province',
+            'alamatCustomer.city',
+            'alamatCustomer.district',
+            'alamatCustomer.subdistrict',
+            'metodePengiriman',
+        ])->where('unique_order', $id)->first();
 
-        dd($id);
-        return view('pesanan.detail');
+        $hargaPerangkat = $order->perangkat->harga_perangkat;
+        $hargaLayanan = $order->layanan->harga_layanan;
+        $shippingCost = $order->biaya_pengiriman;
+        $totalBiaya = $hargaPerangkat + $hargaLayanan + $shippingCost;
+        $ppn = $totalBiaya * 0.11;
+        $pph = 0;
+        $totalPembayaran = $totalBiaya + $ppn;
+        $ringkasanTotalPembayaran = 0;
+
+        if ($status_perusahaan == 1) {
+            $pph = ($hargaLayanan + $shippingCost) * 0.02;
+            $ringkasanTotalPembayaran = $totalBiaya - $pph;
+        } elseif ($status_perusahaan == 2) {
+            $ringkasanTotalPembayaran = $totalBiaya + $ppn;
+        } else {
+            $pph = ($hargaLayanan + $shippingCost) * 0.02;
+            $ringkasanTotalPembayaran = $totalBiaya - $pph + $ppn;
+        }
+
+
+        return view('pesanan.detail', compact(
+            'order',
+            'status_perusahaan',
+            'hargaPerangkat',
+            'hargaLayanan',
+            'shippingCost',
+            'totalBiaya',
+            'ppn',
+            'pph',
+            'totalPembayaran',
+            'ringkasanTotalPembayaran'
+        ));
     }
 }

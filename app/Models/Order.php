@@ -31,7 +31,11 @@ class Order extends Model
         'alamat_node',
         'jenis_pengiriman',
         'metode_pengiriman_id',
+        'biaya_pengiriman',
+        'ppn',
+        'pph',
         'metode_pembayaran',
+        'reff_id_ship',
         'nomor_resi',
         'tracking_id',
     ];
@@ -74,5 +78,10 @@ class Order extends Model
     public function metodePengiriman()
     {
         return $this->belongsTo(MetodePengiriman::class, 'metode_pengiriman_id');
+    }
+
+    public function trackingOrder()
+    {
+        return $this->hasMany(TrackingOrder::class, 'order_id');
     }
 }

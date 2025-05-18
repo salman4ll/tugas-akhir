@@ -9,7 +9,12 @@ function initAddressDropdowns() {
 
     console.log("Address dropdowns initialized.");
 
-    if (!provinsiSelect || !kabupatenSelect || !kecamatanSelect || !kelurahanSelect)
+    if (
+        !provinsiSelect ||
+        !kabupatenSelect ||
+        !kecamatanSelect ||
+        !kelurahanSelect
+    )
         return;
 
     resetAndDisableDropdowns("kabupaten_id", "kecamatan_id", "kelurahan_id");
@@ -25,7 +30,11 @@ function initAddressDropdowns() {
         });
 
     provinsiSelect.addEventListener("change", function () {
-        resetAndDisableDropdowns("kabupaten_id", "kecamatan_id", "kelurahan_id");
+        resetAndDisableDropdowns(
+            "kabupaten_id",
+            "kecamatan_id",
+            "kelurahan_id"
+        );
         if (this.value) {
             kabupatenSelect.disabled = false;
             fetch(`/cities/${this.value}`)
@@ -149,7 +158,8 @@ document.getElementById("cancelButton").addEventListener("click", function () {
     document.getElementById("mapModal").classList.add("hidden");
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
+    // DOM Elements
     const radioAmbilDitempat = document.getElementById("ambil_ditempat");
     const checkboxAmbilDiTempat = document.getElementById(
         "checkbox_ambil_ditempat"
@@ -158,126 +168,12 @@ document.addEventListener("DOMContentLoaded", function () {
         "ambilDitempatWrapper"
     );
     const alamatPengiriman = document.getElementById("alamatPengiriman");
-
     const isCpUserCheckbox = document.getElementById("isCpUser");
     const isAddressUserCheckbox = document.getElementById("isAddressUser");
+    const checkoutButton = document.getElementById("button-checkout");
 
     const penerimaFields = ["nama", "no_telp", "email"];
     const alamatFields = [
-        "provinsi_id",
-        "kabupaten_id",
-        "kecamatan_id",
-        "kelurahan_id",
-        "rt",
-        "rw",
-        "kode_pos",
-        "detail",
-    ];
-
-    function updateAlamatPengirimanDisplay() {
-        const selectedRadio = document.querySelector(
-            'input[name="ekspedisi"]:checked'
-        );
-        if (selectedRadio && selectedRadio.id === "ambil_ditempat") {
-            ambilDitempatWrapper.style.display = "flex";
-            alamatPengiriman.style.display = "none";
-            alamatFields.forEach((id) => {
-                const el = document.getElementById(id);
-                if (this.checked) {
-                    el.required = false;
-                } else {
-                    el.required = true;
-                }
-            });
-            checkboxAmbilDiTempat.checked = true;
-        } else {
-            ambilDitempatWrapper.style.display = "none";
-            alamatPengiriman.style.display = "grid";
-            checkboxAmbilDiTempat.checked = false;
-        }
-    }
-
-    // Pasang listener awal
-    function setupRadioListeners() {
-        const ekspedisiRadios = document.querySelectorAll(
-            'input[name="ekspedisi"]'
-        );
-        ekspedisiRadios.forEach((radio) => {
-            radio.addEventListener("change", updateAlamatPengirimanDisplay);
-            radio.addEventListener("change", validateForm);
-        });
-    }
-
-    // Checkbox manual (jika digunakan)
-    checkboxAmbilDiTempat.addEventListener("change", function () {
-        if (checkboxAmbilDiTempat.checked) {
-            alamatPengiriman.style.display = "none";
-        } else {
-            ambilDitempatWrapper.style.display = "none";
-            alamatPengiriman.style.display = "grid";
-            radioAmbilDitempat.checked = false;
-        }
-    });
-
-    setupRadioListeners();
-    updateAlamatPengirimanDisplay();
-
-    isCpUserCheckbox.addEventListener("change", function () {
-        penerimaFields.forEach((id) => {
-            const el = document.getElementById(id);
-            if (this.checked) {
-                el.closest("div").style.display = "none";
-                el.required = false;
-            } else {
-                el.closest("div").style.display = "flex";
-                el.required = true;
-            }
-        });
-    });
-
-    isAddressUserCheckbox.addEventListener("change", function () {
-        alamatFields.forEach((id) => {
-            const el = document.getElementById(id);
-            if (this.checked) {
-                el.closest("div").style.display = "none";
-                el.required = false;
-            } else {
-                el.closest("div").style.display = "flex";
-                el.required = true;
-            }
-        });
-
-        const mapSection = document
-            .querySelector("#main-map")
-            ?.closest(".relative");
-        if (mapSection) {
-            mapSection.style.display = this.checked ? "none" : "flex";
-        }
-
-        // Otomatis panggil API courier jika lat/long tersedia
-        if (
-            this.checked &&
-            window.Laravel?.latitude &&
-            window.Laravel?.longitude
-        ) {
-            panggilApiCourier(
-                window.Laravel.latitude,
-                window.Laravel.longitude
-            );
-        }
-    });
-
-    // Panggil event saat awal jika sudah dicentang (opsional)
-    if (isAddressUserCheckbox.checked) {
-        isAddressUserCheckbox.dispatchEvent(new Event("change"));
-    }
-
-    const isCpUser = document.getElementById("isCpUser");
-    const isAddressUser = document.getElementById("isAddressUser");
-    const checkoutButton = document.getElementById("button-checkout");
-
-    const cpFields = ["nama", "no_telp", "email"];
-    const addressFields = [
         "provinsi_id",
         "kabupaten_id",
         "kecamatan_id",
@@ -290,100 +186,130 @@ document.addEventListener("DOMContentLoaded", function () {
         "longitude",
     ];
 
-    function toggleRequired(fields, shouldBeRequired) {
+    // Util Functions
+    const toggleRequired = (fields, required) => {
         fields.forEach((id) => {
             const el = document.getElementById(id);
             if (el) {
-                if (shouldBeRequired) {
-                    el.setAttribute("required", true);
-                } else {
-                    el.removeAttribute("required");
-                }
+                el.required = required;
             }
         });
-    }
+    };
 
-    function isFieldsFilled(fields) {
-        return fields.every((id) => {
+    const toggleDisplay = (fields, show) => {
+        fields.forEach((id) => {
+            const el = document.getElementById(id);
+            if (el?.closest("div")) {
+                el.closest("div").style.display = show ? "flex" : "none";
+            }
+        });
+    };
+
+    const isFieldsFilled = (fields) =>
+        fields.every((id) => {
             const el = document.getElementById(id);
             return el && el.value.trim() !== "";
         });
-    }
 
-    function isEkspedisiSelected() {
-        const ekspedisiRadioButtons = document.querySelectorAll(
-            'input[name="ekspedisi"]'
+    const isEkspedisiSelected = () =>
+        [...document.querySelectorAll('input[name="ekspedisi"]')].some(
+            (input) => input.checked
         );
-        return Array.from(ekspedisiRadioButtons).some((input) => input.checked);
-    }
 
-    function validateForm() {
-        let cpValid = true;
-        let addressValid = true;
-        let ekspedisiValid = true;
-
-        if (!isCpUser.checked) {
-            cpValid = isFieldsFilled(cpFields);
-        }
-
-        if (!isAddressUser.checked && !checkboxAmbilDiTempat.checked) {
-            addressValid = isFieldsFilled(addressFields);
-        }
-
-        ekspedisiValid = isEkspedisiSelected(); // validate if ekspedisi is selected
+    const validateForm = () => {
+        const cpValid =
+            isCpUserCheckbox.checked || isFieldsFilled(penerimaFields);
+        const addressValid =
+            isAddressUserCheckbox.checked ||
+            checkboxAmbilDiTempat.checked ||
+            isFieldsFilled(alamatFields);
+        const ekspedisiValid = isEkspedisiSelected();
 
         checkoutButton.disabled = !(cpValid && addressValid && ekspedisiValid);
-    }
+    };
 
-    function handleCpCheckboxChange() {
-        toggleRequired(cpFields, !isCpUser.checked);
-        validateForm();
-    }
-
-    function handleAddressCheckboxChange() {
-        const shouldRequire = !(
-            isAddressUser.checked || checkboxAmbilDiTempat.checked
+    // Handle alamat pengiriman visibility & required
+    const updateAlamatPengirimanDisplay = () => {
+        const selected = document.querySelector(
+            'input[name="ekspedisi"]:checked'
         );
-        toggleRequired(addressFields, shouldRequire);
-        validateForm();
-    }
+        const isAmbilDitempat = selected?.id === "ambil_ditempat";
 
-    function attachInputListeners(fields) {
+        ambilDitempatWrapper.style.display = isAmbilDitempat ? "flex" : "none";
+        alamatPengiriman.style.display = isAmbilDitempat ? "none" : "grid";
+        checkboxAmbilDiTempat.checked = isAmbilDitempat;
+
+        toggleRequired(
+            alamatFields,
+            !isAmbilDitempat && !isAddressUserCheckbox.checked
+        );
+        validateForm();
+    };
+
+    // Event Handlers
+    const handleCpCheckboxChange = () => {
+        const required = !isCpUserCheckbox.checked;
+        toggleRequired(penerimaFields, required);
+        toggleDisplay(penerimaFields, required);
+        validateForm();
+    };
+
+    const handleAddressCheckboxChange = () => {
+        const shouldShow = !isAddressUserCheckbox.checked;
+        toggleRequired(
+            alamatFields,
+            shouldShow && !checkboxAmbilDiTempat.checked
+        );
+        toggleDisplay(alamatFields, shouldShow);
+
+        const mapSection = document
+            .querySelector("#main-map")
+            ?.closest(".relative");
+        if (mapSection)
+            mapSection.style.display = isAddressUserCheckbox.checked
+                ? "none"
+                : "flex";
+
+        if (
+            isAddressUserCheckbox.checked &&
+            window.Laravel?.latitude &&
+            window.Laravel?.longitude
+        ) {
+            panggilApiCourier(
+                window.Laravel.latitude,
+                window.Laravel.longitude
+            );
+        }
+
+        validateForm();
+    };
+
+    const attachInputListeners = (fields) => {
         fields.forEach((id) => {
             const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener("input", validateForm);
-            }
+            if (el) el.addEventListener("input", validateForm);
         });
-    }
+    };
 
-    // Event listener for any radio button change in ekspedisi
-    function setupEkspedisiListeners() {
-        const ekspedisiRadioButtons = document.querySelectorAll(
-            'input[name="ekspedisi"]'
-        );
-        ekspedisiRadioButtons.forEach((button) => {
-            button.addEventListener("change", validateForm);
-        });
-    }
+    const setupEkspedisiListeners = () => {
+        document
+            .querySelectorAll('input[name="ekspedisi"]')
+            .forEach((radio) =>
+                radio.addEventListener("change", updateAlamatPengirimanDisplay)
+            );
+    };
 
-    // Initial run
-    handleCpCheckboxChange();
-    handleAddressCheckboxChange();
-    validateForm();
+    // Manual checkbox for Ambil di Tempat
+    checkboxAmbilDiTempat.addEventListener("change", () => {
+        const isChecked = checkboxAmbilDiTempat.checked;
+        alamatPengiriman.style.display = isChecked ? "none" : "grid";
+        ambilDitempatWrapper.style.display = isChecked ? "flex" : "none";
+        radioAmbilDitempat.checked = isChecked;
+        handleAddressCheckboxChange();
+    });
 
-    // Event listeners for checkboxes
-    isCpUser.addEventListener("change", handleCpCheckboxChange);
-    isAddressUser.addEventListener("change", handleAddressCheckboxChange);
-    checkboxAmbilDiTempat.addEventListener(
-        "change",
-        handleAddressCheckboxChange
-    );
-
-    attachInputListeners(cpFields);
-    attachInputListeners(addressFields);
-
-    function panggilApiCourier(lat, lng) {
+    // Courier API fetch
+    const panggilApiCourier = (lat, lng) => {
         const button = document.getElementById("saveLocationButton");
         const buttonText = button.querySelector(".button-text");
         const spinner = button.querySelector(".spinner");
@@ -404,21 +330,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 device_id: perangkatId,
             }),
         })
-            .then((response) => response.json())
+            .then((res) => res.json())
             .then((data) => {
                 const courierList = document.getElementById("courierList");
                 courierList.innerHTML = "";
 
-                if (data.data) {
-                    data.data.forEach((courier) => {
-                        const courierId = `${courier.id}`;
-                        const price = new Intl.NumberFormat("id-ID", {
-                            style: "currency",
-                            currency: "IDR",
-                            maximumFractionDigits: 0,
-                        }).format(courier.price);
+                (data?.data || []).forEach((courier) => {
+                    const courierId = `${courier.id}`;
+                    const price = new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        maximumFractionDigits: 0,
+                    }).format(courier.price);
 
-                        const courierHTML = `
+                    courierList.insertAdjacentHTML(
+                        "beforeend",
+                        `
                         <label for="${courierId}" class="flex flex-row justify-between items-start gap-4 cursor-pointer p-2 rounded hover:bg-gray-50">
                             <div class="flex flex-row gap-3">
                                 <input type="radio" name="ekspedisi" id="${courierId}" value="${courierId}" data-price="${courier.price}">
@@ -429,63 +356,41 @@ document.addEventListener("DOMContentLoaded", function () {
                             </div>
                             <div class="text-md font-bold">${price}</div>
                         </label>
-                    `;
-                        courierList.insertAdjacentHTML(
-                            "beforeend",
-                            courierHTML
-                        );
-                    });
+                    `
+                    );
+                });
 
-                    // Reattach event listeners to the new radio buttons
-                    setupEkspedisiListeners();
-
-                    // Call validation after updating the courier list
-                    validateForm();
-
-                    updateCourierPriceListeners();
-                    setupRadioListeners();
-                    updateAlamatPengirimanDisplay();
-                    document.getElementById("mapModal").classList.add("hidden");
-                } else {
-                    courierList.innerHTML = `<p class="text-red-500">Tidak ada layanan ekspedisi yang tersedia.</p>`;
-                }
-            })
-            .catch((error) => {
-                console.error("Gagal memanggil API courier:", error);
+                document.getElementById("mapModal").classList.add("hidden");
+                setupEkspedisiListeners();
+                updateAlamatPengirimanDisplay();
             })
             .finally(() => {
                 button.disabled = false;
-                buttonText.textContent = "Gunakan Lokasi";
+                buttonText.textContent = "Simpan Lokasi";
                 spinner.classList.add("hidden");
             });
+    };
+
+    // Init
+    attachInputListeners(penerimaFields);
+    attachInputListeners(alamatFields);
+    setupEkspedisiListeners();
+    handleCpCheckboxChange();
+    handleAddressCheckboxChange();
+    updateAlamatPengirimanDisplay();
+    validateForm();
+
+    // Trigger change if checkbox is pre-checked
+    if (isAddressUserCheckbox.checked) {
+        isAddressUserCheckbox.dispatchEvent(new Event("change"));
     }
 
-    document
-        .getElementById("saveLocationButton")
-        .addEventListener("click", function () {
-            if (selectedLatLng) {
-                const lat = selectedLatLng.lat();
-                const lng = selectedLatLng.lng();
-
-                const button = document.getElementById("saveLocationButton");
-                const buttonText = button.querySelector(".button-text");
-                const spinner = button.querySelector(".spinner");
-
-                // Tampilkan loading
-                button.disabled = true;
-                buttonText.textContent = "Memuat...";
-                spinner.classList.remove("hidden");
-
-                document.getElementById("latitude").value = lat;
-                document.getElementById("longitude").value = lng;
-
-                // Panggil API /api/courier
-                panggilApiCourier(lat, lng);
-                // Update posisi marker utama
-                mainMap.setCenter(selectedLatLng);
-                mainMarker.setPosition(selectedLatLng);
-            }
-        });
+    // Checkbox event listeners
+    isCpUserCheckbox.addEventListener("change", handleCpCheckboxChange);
+    isAddressUserCheckbox.addEventListener(
+        "change",
+        handleAddressCheckboxChange
+    );
 });
 
 function formatCurrency(value) {

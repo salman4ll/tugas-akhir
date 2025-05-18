@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Perangkat;
 use App\Models\RiwayatStatusOrder;
 use App\Models\ShippingMethod;
+use App\Models\TrackingOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -209,6 +210,7 @@ class BiteShipController extends Controller
             ]);
 
             $order->update([
+                'reff_id_ship' => $response->json('id'),
                 'nomor_resi' => $nomorResi,
                 'tracking_id' => $trackingId,
                 'riwayat_status_order_id' => $riwayatStatusOrder->id,
@@ -235,5 +237,81 @@ class BiteShipController extends Controller
                 'error_detail' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function webhookBiteship(Request $request)
+    {
+        $order = Order::where('reff_id_ship', $request->order_id)->firstOrFail();
+
+        $shipmentStatus = $this->handleStatusUpdate($request->status, $order);
+
+        $latestNote = $this->getLatestTrackingNote(
+            $request->courier_tracking_id
+        );
+
+        $trackingOrder = TrackingOrder::create([
+            'order_id' => $order->id,
+            'status' => $shipmentStatus,
+            'note' => $latestNote,
+        ]);
+
+        return response()->json([
+            'status' => 'ok',
+            'code' => 200,
+            'message' => 'Webhook processed successfully',
+            'data' => [
+                'order_id' => $order->id,
+                'shipment_status' => $shipmentStatus,
+                'tracking_order_id' => $trackingOrder->id,
+            ],
+        ]);
+    }
+
+    private function handleStatusUpdate(string $status, Order $order): ?string
+    {
+        $map = [
+            'picking_up' => [
+                'shipmentStatus' => 'process',
+                'statusId' => 5,
+                'keterangan' => 'Sedang Diambil',
+            ],
+            'picked' => [
+                'shipmentStatus' => null,
+                'statusId' => 6,
+                'keterangan' => 'Sedang Dalam Perjalanan',
+            ],
+            'delivered' => [
+                'shipmentStatus' => 'completed',
+                'statusId' => 7,
+                'keterangan' => 'Pengiriman Selesai',
+            ],
+        ];
+
+        if (!array_key_exists($status, $map)) {
+            abort(response()->json(['message' => 'Unsupported status'], 400));
+        }
+
+        $data = $map[$status];
+
+        RiwayatStatusOrder::create([
+            'order_id' => $order->id,
+            'status_id' => $data['statusId'],
+            'keterangan' => $data['keterangan'],
+            'tanggal' => now(),
+        ]);
+
+        return $data['shipmentStatus'];
+    }
+
+    private function getLatestTrackingNote(string $courierTrackingId): ?string
+    {
+        $response = Http::withToken(env('BITESHIP_AUTH_TOKEN'))
+            ->get(env('BITESHIP_URL') . '/v1/tracking/' . $courierTrackingId);
+
+        $trackingData = $response->json();
+
+        return collect($trackingData['history'] ?? [])
+            ->sortByDesc('updated_at')
+            ->first()['note'] ?? null;
     }
 }
