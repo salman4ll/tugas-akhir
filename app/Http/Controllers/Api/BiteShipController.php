@@ -241,7 +241,25 @@ class BiteShipController extends Controller
 
     public function webhookBiteship(Request $request)
     {
-        $order = Order::where('reff_id_ship', $request->order_id)->firstOrFail();
+        // Cek apakah request kosong atau tidak memiliki data yang dibutuhkan
+        if (!$request->has(['status', 'order_id', 'courier_tracking_id'])) {
+            return response()->json([
+                'status' => 'ok',
+                'code' => 200,
+                'message' => 'Webhook installed successfully',
+            ]);
+        }
+
+        // Jalankan logika utama hanya jika data tersedia
+        $order = Order::where('reff_id_ship', $request->order_id)->first();
+
+        if (!$order) {
+            return response()->json([
+                'status' => 'ok',
+                'code' => 200,
+                'message' => 'Order not found, but webhook accepted',
+            ]);
+        }
 
         $shipmentStatus = $this->handleStatusUpdate($request->status, $order);
 
@@ -266,6 +284,7 @@ class BiteShipController extends Controller
             ],
         ]);
     }
+
 
     private function handleStatusUpdate(string $status, Order $order): ?string
     {
