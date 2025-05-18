@@ -289,6 +289,11 @@ class BiteShipController extends Controller
     private function handleStatusUpdate(string $status, Order $order): ?string
     {
         $map = [
+            'allocated' => [
+                'shipmentStatus' => 'allocated',
+                'statusId' => 4,
+                'keterangan' => 'Kurir Dialokasikan',
+            ],
             'picking_up' => [
                 'shipmentStatus' => 'process',
                 'statusId' => 5,
