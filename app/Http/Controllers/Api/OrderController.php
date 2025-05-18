@@ -37,17 +37,21 @@ class OrderController extends Controller
                 }
                 break;
             case 'settlement':
-                $order->update([
-                    'payment_status' => 'success',
-                    'payment_method' => $request->payment_type,
-                ]);
 
-                RiwayatStatusOrder::create([
+                $RiwayatStatusOrder =RiwayatStatusOrder::create([
                     'order_id' => $order->id,
                     'status_id' => 2,
                     'keterangan' => 'Pembayaran Berhasil',
                     'tanggal' => now(),
                 ]);
+
+                $order->update([
+                    'payment_status' => 'success',
+                    'payment_method' => $request->payment_type,
+                    'riwayat_status_order_id' => $RiwayatStatusOrder->id,
+                    'tanggal_pembayaran' => now(),
+                ]);
+
                 break;
             case 'pending':
                 $order->update([
@@ -56,43 +60,49 @@ class OrderController extends Controller
                 ]);
                 break;
             case 'deny':
-                $order->update([
-                    'payment_status' => 'failed',
-                    'payment_method' => $request->payment_type,
-                ]);
-
-                RiwayatStatusOrder::create([
+                $RiwayatStatusOrder = RiwayatStatusOrder::create([
                     'order_id' => $order->id,
                     'status_id' => 9,
                     'keterangan' => 'Pembayaran Gagal',
                     'tanggal' => now(),
                 ]);
-                break;
-            case 'expire':
+
                 $order->update([
-                    'payment_status' => 'expired',
+                    'payment_status' => 'failed',
                     'payment_method' => $request->payment_type,
+                    'riwayat_status_order_id' => $RiwayatStatusOrder->id,
                 ]);
 
-                RiwayatStatusOrder::create([
+                break;
+            case 'expire':
+                $RiwayatStatusOrder = RiwayatStatusOrder::create([
                     'order_id' => $order->id,
                     'status_id' => 9,
                     'keterangan' => 'Pembayaran Kadaluarsa',
                     'tanggal' => now(),
                 ]);
-                break;
-            case 'cancel':
+
                 $order->update([
-                    'payment_status' => 'canceled',
+                    'payment_status' => 'expired',
                     'payment_method' => $request->payment_type,
+                    'riwayat_status_order_id' => $RiwayatStatusOrder->id,
                 ]);
 
-                RiwayatStatusOrder::create([
+                break;
+            case 'cancel':
+                $RiwayatStatusOrder = RiwayatStatusOrder::create([
                     'order_id' => $order->id,
                     'status_id' => 9,
                     'keterangan' => 'Pembayaran Dibatalkan',
                     'tanggal' => now(),
                 ]);
+
+                $order->update([
+                    'payment_status' => 'canceled',
+                    'payment_method' => $request->payment_type,
+                    'riwayat_status_order_id' => $RiwayatStatusOrder->id,
+                ]);
+
                 break;
             default:
                 $order->update([

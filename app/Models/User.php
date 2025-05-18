@@ -65,4 +65,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(CpCustomer::class, 'customer_id');
     }
+
+    public function address()
+    {
+        return $this->hasMany(Address::class, 'customer_id');
+    }
 }

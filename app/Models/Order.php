@@ -33,6 +33,7 @@ class Order extends Model
         'metode_pengiriman_id',
         'metode_pembayaran',
         'nomor_resi',
+        'tracking_id',
     ];
 
     public function customer()

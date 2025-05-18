@@ -45,6 +45,7 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         $cpCustomer = $user->cpCustomer->first();
+        $addressUser = $user->address->first();
         $data = $request->all();
 
         if ($request->isCpUser) {
@@ -252,7 +253,7 @@ class OrderController extends Controller
                 'customer_id' => $user->id,
                 'layanan_id' => $layananId,
                 'perangkat_id' => $perangkat->id,
-                'alamat_customer_id' => $request->isAddressUser ? null : ($address ? $address->id : null),
+                'alamat_customer_id' => $request->isAddressUser ? $addressUser->id : ($address ? $address->id : null),
                 'cp_customer_id' => $request->isCpUser ? $cpCustomer->id : ($createCpCustomer ? $createCpCustomer->id : null),
                 'quantity' => 1,
                 'order_date' => now(),

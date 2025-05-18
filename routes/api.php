@@ -10,4 +10,5 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::middleware('auth.sanctum.api')->post('/courier', [BiteShipController::class, 'getCourier'])->name('api.courier');
+Route::middleware('auth.sanctum.api')->post('/create-shipping', [BiteShipController::class, 'createShipping'])->name('api.createShipping');
 Route::post('/callback', [OrderController::class, 'callback'])->name('api.callbackMidtrans');
