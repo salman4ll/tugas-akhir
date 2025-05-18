@@ -266,7 +266,6 @@ class BiteShipController extends Controller
         $latestNote = $this->getLatestTrackingNote(
             $request->courier_tracking_id
         );
-
         $trackingOrder = TrackingOrder::create([
             'order_id' => $order->id,
             'status' => $shipmentStatus,
@@ -330,7 +329,7 @@ class BiteShipController extends Controller
     private function getLatestTrackingNote(string $courierTrackingId): ?string
     {
         $response = Http::withToken(env('BITESHIP_AUTH_TOKEN'))
-            ->get(env('BITESHIP_URL') . '/v1/tracking/' . $courierTrackingId);
+            ->get(env('BITESHIP_URL') . '/v1/trackings/' . $courierTrackingId);
 
         $trackingData = $response->json();
 
