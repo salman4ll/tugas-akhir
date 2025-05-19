@@ -38,7 +38,7 @@
                     {{-- Header Produk --}}
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold">Produk (2)</h3>
-                        <a href="#" class="text-blue-600 hover:underline">Bandingkan Produk &rarr;</a>
+                        {{-- <a href="#" class="text-blue-600 hover:underline">Bandingkan Produk &rarr;</a> --}}
                     </div>
 
                     {{-- Produk List --}}

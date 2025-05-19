@@ -3,8 +3,10 @@
         <div class="relative flex h-16 items-center justify-between">
             <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 <button type="button"
-                    class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-[#ED4436] hover:text-white focus:ring-2 focus:ring-white">
-                    <svg class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-[#ED4436] hover:text-white focus:ring-2 focus:ring-white"
+                    aria-controls="mobile-menu" aria-expanded="false">
+                    <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
@@ -65,8 +67,10 @@
                         <div id="profile-dropdown"
                             class="hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5"
                             role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem">Your Profile</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem">Settings</a>
+                            <a href="/user/dashboard" class="block px-4 py-2 text-sm text-gray-700"
+                                role="menuitem">Dashboard</a>
+                            <a href="/user/pesanan" class="block px-4 py-2 text-sm text-gray-700"
+                                role="menuitem">Pesanan</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700">Sign
@@ -89,16 +93,16 @@
     </div>
 
     <!-- Mobile menu -->
-    <div class="sm:hidden" id="mobile-menu">
+    <div class="sm:hidden hidden" id="mobile-menu">
         <div class="space-y-1 px-2 pt-2 pb-3">
-            <a href="#"
-                class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white">Dashboard</a>
-            <a href="#"
-                class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#ED4436] hover:text-white">Team</a>
-            <a href="#"
-                class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#ED4436] hover:text-white">Projects</a>
-            <a href="#"
-                class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#ED4436] hover:text-white">Calendar</a>
+            <a href="{{ url('/') }}"
+                class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white">Beranda</a>
+            <a href="{{ url('/layanan') }}"
+                class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#ED4436] hover:text-white">Layanan</a>
+            <a href="{{ url('/promo') }}"
+                class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#ED4436] hover:text-white">Promo</a>
+            <a href="{{ url('/faq') }}"
+                class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#ED4436] hover:text-white">FAQ</a>
         </div>
     </div>
 </nav>
@@ -108,14 +112,27 @@
     document.addEventListener('DOMContentLoaded', function() {
         const userMenuButton = document.getElementById('user-menu-button');
         const dropdown = document.getElementById('profile-dropdown');
+        const mobileMenuButton = document.querySelector('button[aria-controls="mobile-menu"]');
+        const mobileMenu = document.getElementById('mobile-menu');
 
         document.addEventListener('click', function(e) {
-            const isInside = userMenuButton?.contains(e.target) || dropdown?.contains(e.target);
+            const isInsideProfile = userMenuButton?.contains(e.target) || dropdown?.contains(e.target);
+            const isInsideMobileMenu = mobileMenu?.contains(e.target);
 
+            // Toggle dropdown profile saat klik tombol profile
             if (userMenuButton?.contains(e.target)) {
                 dropdown?.classList.toggle('hidden');
-            } else if (!isInside) {
+            } else if (!isInsideProfile) {
+                // Klik di luar dropdown profile tutup dropdown
                 dropdown?.classList.add('hidden');
+            }
+
+            // Toggle mobile menu saat klik hamburger button
+            if (mobileMenuButton?.contains(e.target)) {
+                mobileMenu.classList.toggle('hidden');
+            } else if (!isInsideMobileMenu && !mobileMenuButton.contains(e.target)) {
+                // Klik di luar mobile menu tutup mobile menu
+                mobileMenu.classList.add('hidden');
             }
         });
     });

@@ -4,9 +4,9 @@
 
 @section('content')
     <div class="bg-gray-100">
-        <div class="mx-auto max-w-7xl px-8 py-10 min-h-screen text-gray-800">
+        <div class="mx-auto container w-full px-8 py-10 min-h-screen text-gray-800">
             <form method="GET" action="{{ route('user.pesanan') }}" id="sortForm">
-                <select name="sort" id="filter" class="font-bold text-lg py-2 px-5 rounded-3xl border border-black"
+                <select name="sort" id="filter" class="font-bold text-lg py-2 px-5 rounded-3xl border border-black hidden sm:flex"
                     onchange="document.getElementById('sortForm').submit()">
                     <option value="desc" {{ request('sort') == 'desc' ? 'selected' : '' }}>Pesanan Terbaru</option>
                     <option value="asc" {{ request('sort') == 'asc' ? 'selected' : '' }}>Pesanan Terlama</option>
@@ -15,7 +15,8 @@
 
 
             {{-- Navigasi --}}
-            <div class="flex flex-row justify-around mt-5">
+            {{-- Navigasi untuk desktop --}}
+            <div class="hidden sm:flex flex-row justify-around mt-5">
                 @php
                     $statusFilter = request('status');
                 @endphp
@@ -36,7 +37,7 @@
                 <span>|</span>
                 <a href="{{ route('user.pesanan', ['status' => 'dikirim', 'sort' => request('sort')]) }}"
                     class="{{ $statusFilter == 'dikirim' ? 'text-purple-600 font-semibold border-b-2 border-purple-600' : '' }}">
-                    Pesanan Dikirim
+                    Dalam Perjalanan
                 </a>
                 <span>|</span>
                 <a href="{{ route('user.pesanan', ['status' => 'selesai', 'sort' => request('sort')]) }}"
@@ -45,6 +46,39 @@
                 </a>
             </div>
 
+            {{-- Navigasi untuk mobile --}}
+            <div class="flex sm:hidden justify-between items-center mt-5">
+                <form method="GET" action="{{ route('user.pesanan') }}" id="mobileFilterForm"
+                    class="flex-grow mr-3 flex items-center">
+                    {{-- Status --}}
+                    <select name="status" id="statusSelectMobile"
+                        class="flex-grow font-bold text-lg py-2 px-4 rounded-3xl border border-black"
+                        onchange="document.getElementById('mobileFilterForm').submit()">
+                        <option value="" {{ request('status') == '' ? 'selected' : '' }}>Semua</option>
+                        <option value="belum_dibayar" {{ request('status') == 'belum_dibayar' ? 'selected' : '' }}>Belum
+                            Dibayar</option>
+                        <option value="diproses" {{ request('status') == 'diproses' ? 'selected' : '' }}>Pesanan Diproses
+                        </option>
+                        <option value="dikirim" {{ request('status') == 'dikirim' ? 'selected' : '' }}>Dalam Perjalanan
+                        </option>
+                        <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Pesanan Selesai
+                        </option>
+                    </select>
+
+                    {{-- Sort (hidden input untuk simpan nilai sort) --}}
+                    <input type="hidden" name="sort" id="sortInputMobile" value="{{ request('sort') ?? 'desc' }}" />
+                </form>
+
+                {{-- Tombol icon filter/sort --}}
+                <button type="button" id="btnToggleSortMobile"
+                    class="p-2 ml-3 rounded-full border border-gray-700 hover:bg-gray-200" aria-label="Toggle Sort">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 019 17v-3.586L3.293 6.707A1 1 0 013 6V4z" />
+                    </svg>
+                </button>
+            </div>
 
             <div class="flex flex-col gap-10 mt-10">
                 @if ($orders->count() > 0)
@@ -52,7 +86,8 @@
                         <div class="w-full flex items-center justify-between">
                             <button onclick="window.location.href = '/user/pesanan/detail/{{ $order->unique_order }}'"
                                 class="flex gap-5 items-center">
-                                <img src="{{ asset('assets/images/' . $order->perangkat->produk->image) }}" alt="" class="w-[200px]">
+                                <img src="{{ asset('assets/images/' . $order->perangkat->produk->image) }}" alt=""
+                                    class="w-[200px]">
                                 <div class="flex flex-col gap-2 text-left">
                                     <p class="font-bold text-2xl">
                                         {{ $order->perangkat->produk->nama_produk ?? 'Tanpa Layanan' }}</p>
@@ -70,7 +105,9 @@
                             <div class="flex flex-col gap-3 items-center w-[17%]">
                                 <p class="font-bold text-3xl">IDR{{ number_format($order->total_harga, 0, ',', '.') }}</p>
                                 @if ($order->statusTerakhir?->status?->id == 1)
-                                    <button class="bg-blue-400 text-white px-10 py-3 rounded-lg" onclick="window.location.href = '{{ $order->payment_url }}'">Bayar Sekarang</button>
+                                    <button class="bg-blue-400 text-white px-10 py-3 rounded-lg"
+                                        onclick="window.location.href = '{{ $order->payment_url }}'">Bayar
+                                        Sekarang</button>
                                 @else
                                     <button
                                         class="bg-blue-400 opacity-40 cursor-not-allowed text-white px-10 py-3 rounded-lg">Bayar
@@ -95,4 +132,14 @@
 
         </div>
     </div>
+
+    <script>
+        document.getElementById('btnToggleSortMobile').addEventListener('click', function() {
+            const sortInput = document.getElementById('sortInputMobile');
+            // Toggle sort value
+            sortInput.value = (sortInput.value === 'desc') ? 'asc' : 'desc';
+            // Submit form langsung
+            document.getElementById('mobileFilterForm').submit();
+        });
+    </script>
 @endsection
