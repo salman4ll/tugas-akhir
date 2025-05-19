@@ -299,7 +299,7 @@ class BiteShipController extends Controller
                 'keterangan' => 'Sedang Diambil',
             ],
             'picked' => [
-                'shipmentStatus' => null,
+                'shipmentStatus' => 'process',
                 'statusId' => 6,
                 'keterangan' => 'Sedang Dalam Perjalanan',
             ],
