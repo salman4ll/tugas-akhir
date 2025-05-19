@@ -199,6 +199,16 @@ class BiteShipController extends Controller
                 ], $response->status());
             }
 
+            $latestNote = $this->getLatestTrackingNote(
+                $response->json('courier.tracking_id')
+            );
+
+            TrackingOrder::create([
+                'order_id' => $order->id,
+                'status' => 'created',
+                'note' => $latestNote,
+            ]);
+
             $nomorResi = $response->json('courier.waybill_id');
             $trackingId = $response->json('courier.tracking_id');
 
@@ -341,5 +351,38 @@ class BiteShipController extends Controller
         return collect($trackingData['history'] ?? [])
             ->sortByDesc('updated_at')
             ->first()['note'] ?? null;
+    }
+
+    public function getTracking(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 422,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $order = Order::with('trackingOrder')->where('unique_order', $request->order_id)->first();
+        $trackingOrder = $order->trackingOrder;
+        if ($trackingOrder->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Tracking tidak ditemukan',
+                'data' => []
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'data' => $trackingOrder,
+        ], 200);
     }
 }

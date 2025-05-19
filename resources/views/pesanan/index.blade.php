@@ -52,7 +52,7 @@
                         <div class="w-full flex items-center justify-between">
                             <button onclick="window.location.href = '/user/pesanan/detail/{{ $order->unique_order }}'"
                                 class="flex gap-5 items-center">
-                                <img src="/assets/images/produk-link.png" alt="" class="w-[200px]">
+                                <img src="{{ asset('assets/images/' . $order->perangkat->produk->image) }}" alt="" class="w-[200px]">
                                 <div class="flex flex-col gap-2 text-left">
                                     <p class="font-bold text-2xl">
                                         {{ $order->perangkat->produk->nama_produk ?? 'Tanpa Layanan' }}</p>

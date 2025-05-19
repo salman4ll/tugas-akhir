@@ -38,6 +38,7 @@ class Order extends Model
         'reff_id_ship',
         'nomor_resi',
         'tracking_id',
+        'confirmation_image'
     ];
 
     public function customer()

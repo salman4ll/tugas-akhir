@@ -13,3 +13,6 @@ Route::middleware('auth.sanctum.api')->post('/courier', [BiteShipController::cla
 Route::middleware('auth.sanctum.api')->post('/create-shipping', [BiteShipController::class, 'createShipping'])->name('api.createShipping');
 Route::post('/callback', [OrderController::class, 'callback'])->name('api.callbackMidtrans');
 Route::post('/webhook-biteship', [BiteShipController::class, 'webhookBiteship'])->name('api.webhookBiteShip');
+Route::post('/get-tracking', [BiteShipController::class, 'getTracking'])->name('api.getTracking');
+
+Route::middleware('auth.sanctum.api')->post('/confirmation-order', [OrderController::class, 'confirmationOrder'])->name('api.confirmationOrder');

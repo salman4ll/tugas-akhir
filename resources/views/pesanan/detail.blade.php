@@ -9,7 +9,7 @@
                 <div class="col col-span-4">
                     <div class="flex flex-col gap-8">
                         <div class="bg-gray-200 p-6 rounded-xl shadow-xl">
-                            <img src="/assets/images/produk-link.png" class="w-full rounded-lg" alt="">
+                            <img src="{{ asset('assets/images/' . $order->perangkat->produk->image) }}" class="w-full rounded-lg" alt="">
                         </div>
                         <div class="flex flex-col gap-5">
                             <p class="font-semibold text-3xl">{{ $order->perangkat->produk->nama_produk }}</p>
@@ -31,74 +31,149 @@
                     </div>
 
                     {{-- Content Status Order --}}
+                    @php
+                        $statusId = $order->statusTerakhir->status->id;
+                        $activeStep = match (true) {
+                            $statusId == 1 || $statusId == 2 => 1,
+                            $statusId >= 3 && $statusId <= 6 => 2,
+                            $statusId == 7 => 3,
+                            $statusId == 8 => 4,
+                            default => 0,
+                        };
+                    @endphp
+
                     <div id="statusContent" class="mt-10">
-                        <ol class=" overflow-hidden space-y-8">
+                        <ol class="overflow-hidden space-y-8">
+                            {{-- Step 1: Pembayaran --}}
                             <li
-                                class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:bg-gray-200 after:inline-block after:absolute after:-bottom-11 after:left-4 lg:after:left-5">
+                                class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:{{ $activeStep >= 1 ? 'bg-purple-600' : 'bg-gray-200' }} after:inline-block after:absolute after:-bottom-10 after:left-4 lg:after:left-5">
                                 <div class="flex items-start font-medium w-full">
                                     <span
-                                        class="w-8 h-8 bg-purple-50  border-2 border-purple-600 rounded-full flex justify-center items-center mr-3 text-sm text-purple-600 lg:w-10 lg:h-10">1</span>
+                                        class="w-8 h-8 {{ $activeStep >= 1 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">1</span>
                                     <div class="flex flex-col">
-                                        <h4 class="text-lg text-purple-600 font-semibold">Pembayaran</h4>
-                                        <span class="text-xl font-semibold mb-2">IDR86,000,000</span>
-                                        <button class="bg-blue-400 text-white px-6 py-2 rounded-lg text-sm w-fit">
-                                            Bayar Sekarang
-                                        </button>
+                                        <h4
+                                            class="text-lg {{ $activeStep >= 1 ? 'text-purple-600' : 'text-gray-900' }} font-semibold">
+                                            Pembayaran</h4>
+                                        <span class="text-xl font-semibold mb-2">{{ formatIDR($order->total_harga) }}</span>
+                                        @if ($activeStep === 1)
+                                            <button class=" text-white w-60 px-4 py-2 rounded bg-purple-600 hover:bg-purple-700 transition"
+                                                onclick="window.location.href = '{{ $order->payment_url }}'">Bayar
+                                                Sekarang</button>
+                                        @endif
                                     </div>
                                 </div>
                             </li>
+
+                            {{-- Step 2: Pengiriman --}}
                             <li
-                                class="relative flex-1 after:content-['']  after:w-0.5 after:h-full  after:bg-gray-200 after:inline-block after:absolute after:-bottom-12 after:left-4 lg:after:left-5">
-                                <a class="flex items-center font-medium w-full  ">
+                                class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:{{ $activeStep >= 2 ? 'bg-purple-600' : 'bg-gray-200' }} after:inline-block after:absolute after:-bottom-10 after:left-4 lg:after:left-5">
+                                <a class="flex font-medium w-full">
                                     <span
-                                        class="w-8 h-8 bg-gray-50 border-2 border-gray-200 rounded-full flex justify-center items-center mr-3 text-sm  lg:w-10 lg:h-10">2</span>
-                                    <div class="block">
-                                        <h4 class="text-lg text-gray-900 font-semibold">Pengiriman</h4>
+                                        class="w-8 h-8 {{ $activeStep >= 2 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">2</span>
+                                    <div class="flex flex-col">
+                                        <h4
+                                            class="text-lg {{ $activeStep >= 2 ? 'text-purple-600' : 'text-gray-900' }} font-semibold">
+                                            Pengiriman</h4>
+                                        @if ($activeStep >= 2)
+                                            <small class="text-gray-500">Dikirim pada
+                                                {{ optional($order->trackingOrder->first())->created_at ? formatTanggal($order->trackingOrder->first()->created_at) : '-' }}</small>
+                                            Paling Lambat tiba
+                                            {{ $order->metodePengiriman->duration_estimate }}</small>
+                                            <div class="flex items-center space-x-2">
+                                                <span>No resi: <span id="nomorResi">{{ $order->nomor_resi }}</span></span>
+                                                <button onclick="copyResi()" class="text-gray-500 hover:text-gray-700"
+                                                    title="Salin Resi">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24">
+                                                        <path fill="currentColor"
+                                                            d="M15.24 2h-3.894c-1.764 0-3.162 0-4.255.148c-1.126.152-2.037.472-2.755 1.193c-.719.721-1.038 1.636-1.189 2.766C3 7.205 3 8.608 3 10.379v5.838c0 1.508.92 2.8 2.227 3.342c-.067-.91-.067-2.185-.067-3.247v-5.01c0-1.281 0-2.386.118-3.27c.127-.948.413-1.856 1.147-2.593s1.639-1.024 2.583-1.152c.88-.118 1.98-.118 3.257-.118h3.07c1.276 0 2.374 0 3.255.118A3.6 3.6 0 0 0 15.24 2" />
+                                                        <path fill="currentColor"
+                                                            d="M6.6 11.397c0-2.726 0-4.089.844-4.936c.843-.847 2.2-.847 4.916-.847h2.88c2.715 0 4.073 0 4.917.847S21 8.671 21 11.397v4.82c0 2.726 0 4.089-.843 4.936c-.844.847-2.202.847-4.917.847h-2.88c-2.715 0-4.073 0-4.916-.847c-.844-.847-.844-2.21-.844-4.936z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+
+                                            <span>{{ $order->trackingOrder->last()->note ?? '-' }}</span>
+
+                                            <!-- Tombol -->
+                                            <button id="trackOrderBtn" class="w-auto underline text-[#3399FE] flex">Lacak
+                                                Pesanan Mu</button>
+                                        @endif
+
                                     </div>
                                 </a>
                             </li>
+
+                            {{-- Step 3: Konfirmasi Pesanan --}}
                             <li
-                                class="relative flex-1 after:content-['']  after:w-0.5 after:h-full  after:bg-gray-200 after:inline-block after:absolute after:-bottom-12 after:left-4 lg:after:left-5">
-                                <a class="flex items-center font-medium w-full  ">
+                                class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:{{ $activeStep >= 3 ? 'bg-purple-600' : 'bg-gray-200' }} after:inline-block after:absolute after:-bottom-10 after:left-4 lg:after:left-5">
+                                <a class="flex font-medium w-full">
                                     <span
-                                        class="w-8 h-8 bg-gray-50 border-2 border-gray-200 rounded-full flex justify-center items-center mr-3 text-sm  lg:w-10 lg:h-10">3</span>
-                                    <div class="block">
-                                        <h4 class="text-lg text-gray-900 font-semibold">Konfirmasi Pesanan</h4>
+                                        class="w-8 h-8 {{ $activeStep >= 3 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">3</span>
+                                    <div class="flex flex-col">
+                                        <h4
+                                            class="text-lg {{ $activeStep >= 3 ? 'text-purple-600' : 'text-gray-900' }} font-semibold">
+                                            Konfirmasi Pesanan</h4>
+                                        @if ($activeStep >= 3)
+                                            <small class="text-gray-500 mb-4">Sampai pada
+                                                {{ formatTanggal($waktuPengirimanSampai) }}</small>
+
+                                            @if ($activeStep == 3)
+                                                <div class="border border-dashed border-gray-400 p-3 flex flex-col items-center justify-center space-y-2 cursor-pointer w-fit rounded-md"
+                                                    onclick="document.getElementById('imageUpload').click()"
+                                                    id="uploadContainer">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" class="text-gray-500" id="uploadIcon">
+                                                        <path fill="currentColor"
+                                                            d="m9.828 5l-2 2H4v12h16V7h-3.828l-2-2zM9 3h6l2 2h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4zm3 15a5.5 5.5 0 1 1 0-11a5.5 5.5 0 0 1 0 11m0-2a3.5 3.5 0 1 0 0-7a3.5 3.5 0 0 0 0 7" />
+                                                    </svg>
+                                                    <input type="file" id="imageUpload" class="hidden"
+                                                        accept="image/*" />
+                                                </div>
+                                            @elseif($activeStep > 3)
+                                                <div
+                                                    class="border border-dashed border-gray-400 p-3 flex flex-col items-center justify-center space-y-2 cursor-pointer w-fit rounded-md">
+                                                    <img src="{{ Storage::url($order->confirmation_image) }}"
+                                                        alt="Bukti Konfirmasi" class=" object-cover rounded-md">
+                                                </div>
+                                            @endif
+
+                                            <small class="text-gray-500 mt-4">Pesanan akan terkonfirmasi secara otomatis
+                                                setelah
+                                                1x24 jam</small>
+                                            <button onclick="handleConfirm()"
+                                                class=" text-white w-60 px-4 py-2 rounded {{ $activeStep == 3 ? 'bg-purple-600 hover:bg-purple-700 transition' : 'bg-gray-500 cursor-not-allowed' }}"
+                                                {{ $activeStep == 3 ? '' : 'disabled' }}>
+                                                Konfirmasi Pesanan
+                                            </button>
+
+                                            <small class="text-gray-500 mt-4">Pesanan belum datang?</small>
+                                            <button onclick="window.open('https://wa.me/6281214931661', '_blank')"
+                                                class="text-white w-60 px-4 py-2 rounded {{ $activeStep == 3 ? 'bg-purple-600 hover:bg-purple-700 transition' : 'bg-gray-500' }}"
+                                                {{ $activeStep == 3 ? '' : '' }}>
+                                                Hubungi AM
+                                            </button>
+                                        @endif
                                     </div>
                                 </a>
                             </li>
+
+                            {{-- Step 4: Pesanan Selesai --}}
                             <li
-                                class="relative flex-1 after:content-['']  after:w-0.5 after:h-full  after:bg-gray-200 after:inline-block after:absolute after:-bottom-12 after:left-4 lg:after:left-5">
-                                <a class="flex items-center font-medium w-full  ">
+                                class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:{{ $activeStep > 4 ? 'bg-purple-600' : 'bg-gray-200' }} after:inline-block after:absolute after:-bottom-12 after:left-4 lg:after:left-5">
+                                <a class="flex items-center font-medium w-full">
                                     <span
-                                        class="w-8 h-8 bg-gray-50 border-2 border-gray-200 rounded-full flex justify-center items-center mr-3 text-sm  lg:w-10 lg:h-10">4</span>
+                                        class="w-8 h-8 {{ $activeStep == 4 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">4</span>
                                     <div class="block">
-                                        <h4 class="text-lg text-gray-900 font-semibold">Aktivasi</h4>
-                                    </div>
-                                </a>
-                            </li>
-                            <li
-                                class="relative flex-1 after:content-['']  after:w-0.5 after:h-full  after:bg-gray-200 after:inline-block after:absolute after:-bottom-12 after:left-4 lg:after:left-5">
-                                <a class="flex items-center font-medium w-full  ">
-                                    <span
-                                        class="w-8 h-8 bg-gray-50 border-2 border-gray-200 rounded-full flex justify-center items-center mr-3 text-sm  lg:w-10 lg:h-10">5</span>
-                                    <div class="block">
-                                        <h4 class="text-lg text-gray-900 font-semibold">Surat Pernyataan Aktivasi</h4>
-                                    </div>
-                                </a>
-                            </li>
-                            <li
-                                class="relative flex-1 after:content-['']  after:w-0.5 after:h-full  after:bg-gray-200 after:inline-block after:absolute after:-bottom-12 after:left-4 lg:after:left-5">
-                                <a class="flex items-center font-medium w-full  ">
-                                    <span
-                                        class="w-8 h-8 bg-gray-50 border-2 border-gray-200 rounded-full flex justify-center items-center mr-3 text-sm  lg:w-10 lg:h-10">6</span>
-                                    <div class="block">
-                                        <h4 class="text-lg text-gray-900 font-semibold">Pesanan Selesai</h4>
+                                        <h4
+                                            class="text-lg {{ $activeStep == 4 ? 'text-purple-600' : 'text-gray-900' }} font-semibold">
+                                            Pesanan Selesai</h4>
                                     </div>
                                 </a>
                             </li>
                         </ol>
                     </div>
+
                     {{-- End Content Status Order --}}
 
                     {{-- Content Rincian Pemesanan --}}
@@ -320,6 +395,17 @@
         </div>
     </div>
 
+    <div id="trackingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md relative">
+            <h2 class="text-xl font-semibold mb-4">Tracking Pesanan</h2>
+            <div id="trackingContent" class="flex flex-col-reverse gap-4 h-full overflow-y-auto px-2">
+                <!-- Tracking data -->
+            </div>
+
+            <button id="closeModal" class="absolute top-2 right-2 text-gray-500 hover:text-black">&times;</button>
+        </div>
+    </div>
+
     @push('scripts')
         <script>
             function initMap() {
@@ -364,6 +450,170 @@
 
                 btnRincian.classList.add('border-b-2', 'border-b-purple-600', 'text-purple-600', 'font-semibold');
                 btnStatus.classList.remove('border-b-2', 'border-b-purple-600', 'text-purple-600', 'font-semibold');
+            }
+        </script>
+        <script>
+            const trackButton = document.getElementById('trackOrderBtn');
+            const modal = document.getElementById('trackingModal');
+            const closeModal = document.getElementById('closeModal');
+            const content = document.getElementById('trackingContent');
+
+            // Ganti nilai ini dengan PHP jika perlu (sisi server render)
+            const orderId = "{{ $order->unique_order ?? 1128 }}";
+
+            trackButton.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/api/get-tracking', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            order_id: orderId
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    // Kosongkan konten sebelumnya
+                    content.innerHTML = '';
+
+                    if (result.status === 'success' && result.data.length) {
+                        result.data.forEach((item, index) => {
+                            const entry = document.createElement('div');
+                            entry.classList.add('flex', 'items-start', 'gap-4', 'relative');
+
+                            const isLatest = index === result.data.length -
+                                1; // Data terakhir = paling atas = yang terbaru
+
+                            const date = new Date(item.created_at);
+                            const formattedDate = date.toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                            });
+                            const formattedTime = date.toLocaleTimeString('id-ID', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false
+                            });
+                            entry.innerHTML = `
+                                <div class="flex flex-col items-center">
+                                    <div class="w-3 h-3 rounded-full ${isLatest ? 'bg-green-500' : 'bg-purple-500'}"></div>
+                                    ${index !== 0 ? '<div class="w-px bg-gray-300 h-full mt-1"></div>' : ''}
+                                </div>
+                                <div class="text-sm">
+                                    <p class="font-medium text-gray-800">${formattedDate} ${formattedTime}</p>
+                                    <p class="text-gray-600">${item.note}</p>
+                                </div>
+                            `;
+
+                            content.appendChild(entry);
+                        });
+
+                    } else {
+                        content.innerHTML = '<p class="text-gray-600">Tracking data tidak ditemukan.</p>';
+                    }
+
+                    modal.classList.remove('hidden');
+
+                } catch (error) {
+                    content.innerHTML = '<p class="text-red-600">Terjadi kesalahan saat mengambil data.</p>';
+                    modal.classList.remove('hidden');
+                }
+            });
+
+            closeModal.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+        </script>
+        <script>
+            function copyResi() {
+                const resi = document.getElementById("nomorResi").innerText;
+                navigator.clipboard.writeText(resi).then(function() {
+                    const notif = document.getElementById("copyNotif");
+                    notif.classList.remove("hidden");
+
+                    // Sembunyikan setelah 2 detik
+                    setTimeout(() => {
+                        notif.classList.add("hidden");
+                    }, 2000);
+                }, function(err) {
+                    alert('Gagal menyalin nomor resi.');
+                    console.error('Error saat menyalin: ', err);
+                });
+            }
+        </script>
+
+        <script>
+            const imageUpload = document.getElementById('imageUpload');
+            const uploadContainer = document.getElementById('uploadContainer');
+            const uploadIcon = document.getElementById('uploadIcon');
+
+            imageUpload.addEventListener('change', function() {
+                const file = this.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Hapus icon SVG
+                    uploadIcon.style.display = 'none';
+
+                    // Buat elemen img untuk preview
+                    let img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = "Preview gambar";
+                    img.className = "max-w-xs max-h-48 rounded-md object-contain";
+
+                    // Hapus preview lama kalau ada, lalu tambahkan yang baru
+                    const existingImg = uploadContainer.querySelector('img');
+                    if (existingImg) {
+                        uploadContainer.removeChild(existingImg);
+                    }
+                    uploadContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            async function handleConfirm() {
+                const file = imageUpload.files[0];
+                const token = "{{ session('auth_token') }}";
+
+                const orderId = "{{ $order->unique_order }}";
+                if (!file) {
+                    alert("Silakan upload gambar terlebih dahulu.");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('order_id', orderId);
+                formData.append('image', file);
+
+                try {
+                    const response = await fetch('/api/confirmation-order', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Authorization': 'Bearer ' + token
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert("Pesanan berhasil dikonfirmasi!");
+                        //reload halaman atau lakukan tindakan lain
+                        location.reload();
+                    } else {
+                        alert("Gagal mengonfirmasi pesanan.");
+                        console.error(result);
+                    }
+                } catch (error) {
+                    alert("Terjadi kesalahan saat mengirim data.");
+                    console.error(error);
+                }
             }
         </script>
     @endpush

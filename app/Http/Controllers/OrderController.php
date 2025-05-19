@@ -341,6 +341,7 @@ class OrderController extends Controller
             'perangkat',
             'perangkat.produk',
             'riwayatStatusOrder',
+            'riwayatStatusOrder.status',
             'statusTerakhir.status',
             'cpCustomer',
             'alamatCustomer',
@@ -349,7 +350,19 @@ class OrderController extends Controller
             'alamatCustomer.district',
             'alamatCustomer.subdistrict',
             'metodePengiriman',
+            'trackingOrder',
         ])->where('unique_order', $id)->first();
+        // dd($order->metodePengiriman );
+
+        $waktuPengirimanSampai = null;
+
+        if ($order && $order->trackingOrder) {
+            $completedTracking = $order->trackingOrder->firstWhere('status', 'completed');
+
+            if ($completedTracking) {
+                $waktuPengirimanSampai = $completedTracking->created_at; // atau updated_at tergantung field-nya
+            }
+        }
 
         $hargaPerangkat = $order->perangkat->harga_perangkat;
         $hargaLayanan = $order->layanan->harga_layanan;
@@ -381,7 +394,8 @@ class OrderController extends Controller
             'ppn',
             'pph',
             'totalPembayaran',
-            'ringkasanTotalPembayaran'
+            'ringkasanTotalPembayaran',
+            'waktuPengirimanSampai',
         ));
     }
 }

@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\RiwayatStatusOrder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
@@ -38,7 +41,7 @@ class OrderController extends Controller
                 break;
             case 'settlement':
 
-                $RiwayatStatusOrder =RiwayatStatusOrder::create([
+                $RiwayatStatusOrder = RiwayatStatusOrder::create([
                     'order_id' => $order->id,
                     'status_id' => 2,
                     'keterangan' => 'Pembayaran Berhasil',
@@ -113,5 +116,69 @@ class OrderController extends Controller
         }
 
         return response()->json(['message' => 'Callback received successfully']);
+    }
+
+    public function confirmationOrder(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required',
+            'image' => 'required|image|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $order = Order::with('statusTerakhir')->where('unique_order', $request->order_id)->firstOrFail();
+
+            if ($order->statusTerakhir->status_id != 7) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pesanan tidak dalam status yang dapat dikonfirmasi.',
+                ], 422);
+            }
+
+            $path = $request->file('image')->store('order-confirmation', 'public');
+
+            $RiwayatStatusOrder = RiwayatStatusOrder::create([
+                'order_id' => $order->id,
+                'status_id' => 8,
+                'keterangan' => 'Pesanan telah dikonfirmasi',
+                'tanggal' => now(),
+            ]);
+
+            $order->confirmation_image = $path;
+            $order->riwayat_status_order_id = $RiwayatStatusOrder->id;
+            $order->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pesanan berhasil dikonfirmasi',
+                'data' => [
+                    'order_id' => $order->id,
+                    'confirmation_image_url' => Storage::url($path),
+                ],
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            if (isset($path)) {
+                Storage::disk('public')->delete($path);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat konfirmasi pesanan.',
+                'error_detail' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
