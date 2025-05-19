@@ -303,6 +303,11 @@ class BiteShipController extends Controller
                 'statusId' => 6,
                 'keterangan' => 'Sedang Dalam Perjalanan',
             ],
+            'dropping_off' => [
+                'shipmentStatus' => 'process',
+                'statusId' => 6,
+                'keterangan' => 'Sedang Dalam Perjalanan',
+            ],
             'delivered' => [
                 'shipmentStatus' => 'completed',
                 'statusId' => 7,
