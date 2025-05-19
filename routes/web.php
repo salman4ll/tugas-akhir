@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShippingController;
@@ -60,3 +61,8 @@ Route::get('/districts/{cityId}', [AddressController::class, 'getDistricts'])->n
 Route::get('/subdistricts/{districtId}', [AddressController::class, 'getSubDistricts'])->name('subdistricts.index');
 
 Route::get('/shipping-methods', [ShippingController::class, 'getCourierList'])->name('shipping.methods');
+
+
+Route::get('/user/dashboard', [DashboardController::class, 'index'])
+    ->name('user.dashboard')
+    ->middleware('auth');

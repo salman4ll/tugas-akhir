@@ -262,7 +262,7 @@ class OrderController extends Controller
                 'riwayat_status_order_id' => null,
                 'unique_order' => $orderId,
                 'snap_token' => $chargeResponse->token,
-                'payment_status' => 0,
+                'payment_status' => 'pending',
                 'payment_url' => $chargeResponse->redirect_url,
                 'sn_kit' => null,
                 'sid' => null,

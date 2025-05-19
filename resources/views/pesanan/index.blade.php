@@ -1,4 +1,4 @@
-@extends('layouts.blank')
+@extends('layouts.blank-dashboard')
 
 @section('title', 'Product')
 
