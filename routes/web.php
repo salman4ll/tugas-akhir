@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
@@ -66,3 +68,17 @@ Route::get('/shipping-methods', [ShippingController::class, 'getCourierList'])->
 Route::get('/user/dashboard', [DashboardController::class, 'index'])
     ->name('user.dashboard')
     ->middleware('auth');
+
+Route::get('admin/dashboard', function () {
+    return view('admin.index');
+})->name('admin.dashboard')->middleware(['auth:admin', 'role:logistik,am']);
+
+Route::get('admin/orders/{type}', [AdminOrderController::class, 'index'])->name('admin.orders')->middleware(['auth:admin', 'role:logistik']);
+
+Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+
+Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
+Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+
+Route::post('/admin/orders/update-status/{id}', [AdminOrderController::class, 'updateStatus'])->name('admin.pesanan.updateStatus');
+

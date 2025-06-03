@@ -110,7 +110,7 @@
 
                                     <div class="flex flex-row gap-2 items-center" id="ambilDitempatWrapper"
                                         style="display: none;">
-                                        <input type="checkbox" name="checkbox_ambil_ditempat" id="checkbox_ambil_ditempat" 
+                                        <input type="checkbox" name="checkbox_ambil_ditempat" id="checkbox_ambil_ditempat"
                                             value="1">
                                         <label for="checkbox_ambil_ditempat" class="text-sm">Ambil di Tempat</label>
                                     </div>
@@ -138,8 +138,8 @@
                                             <label for="kabupaten_id" class=" text-xs">
                                                 Kabupaten/kabupaten<span class="text-red-500">*</span>
                                             </label>
-                                            <select name="kabupaten_id" id="kabupaten_id" class="bg-transparent appearance-none"
-                                                required>
+                                            <select name="kabupaten_id" id="kabupaten_id"
+                                                class="bg-transparent appearance-none" required>
                                             </select>
                                         </div>
 
@@ -360,9 +360,13 @@
                                     bukti potong PPN 11% dan PPH 23</p>
 
                                 <div class="flex flex-row gap-2 items-center">
-                                    <input type="checkbox" name="terms" id="terms">
-                                    <label class="text-sm" for="terms">Saya menyetujui <span
-                                            class="text-blue-600">Terms & Condition</span></label>
+                                    <input type="checkbox" name="terms" id="terms"
+                                        onclick="openModal(); this.checked = false;">
+                                    <label class="text-sm" for="terms">
+                                        Saya menyetujui
+                                        <button type="button" class="text-blue-600 underline"
+                                            onclick="openModal()">Terms & Condition</button>
+                                    </label>
                                 </div>
 
                                 <button class="text-white text-md font-bold bg-purple-500 py-3 w-full rounded-2xl"
@@ -372,6 +376,112 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="termsModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50 w-full p-0 m-0">
+        <div class="relative bg-white rounded-2xl w-full max-w-[90%] md:max-w-[80%] lg:max-w-[30%] md:p-10 p-8">
+            <h2 class="text-lg font-semibold mb-4">Terms & Condition</h2>
+            <div class="h-96 overflow-y-auto p-2 text-sm flex flex-col gap-2">
+                <!-- Bagian 1 -->
+                <div class="border border-gray-200 rounded-lg">
+                    <button onclick="toggleSection('section1')"
+                        class="w-full text-left text-lg font-semibold bg-gray-100 px-4 py-3 rounded-t-lg">
+                        Tentang Kebijakan Privasi
+                    </button>
+                    <div id="section1" class="hidden p-4 text-sm space-y-2">
+                        <p>Situs <strong>mySatelite</strong> beserta aplikasi mySatelite (“Situs mySatelite”)
+                            dikelola dan dioperasikan oleh perusahaan jasa telekomunikasi (“Perusahaan” atau “mySatelite”
+                            atau “Kami”). Kami menerapkan Kebijakan Privasi ini untuk menghormati privasi Anda sebagai
+                            pelanggan
+                            Layanan atau jasa/produk mySatelite lainnya maupun sebagai pengguna Situs mySatelite (“Anda”)
+                            dan mengatur penggunaan serta pelindungan informasi maupun data pribadi yang Anda berikan
+                            dan/atau yang Kami peroleh ketika Anda menggunakan Situs mySatelite (“Data Pribadi”).</p>
+                        <p>Dengan mengunduh, mengakses atau menggunakan Situs mySatelite, Anda dianggap telah membaca,
+                            memahami, dan menyetujui Kebijakan Privasi serta memberikan persetujuan kepada Kami atas
+                            penggunaan, pemrosesan, pengelolaan sesuai hukum yang berlaku atas Data Pribadi Anda.</p>
+                    </div>
+                </div>
+
+                <!-- Bagian 2 -->
+                <div class="border border-gray-200 rounded-lg">
+                    <button onclick="toggleSection('section2')"
+                        class="w-full text-left text-lg font-semibold bg-gray-100 px-4 py-3 rounded-t-lg">
+                        Perolehan Data Pribadi
+                    </button>
+                    <div id="section2" class="hidden p-4 text-sm space-y-2">
+                        <p>Kami dapat melakukan pengumpulan Data Pribadi Anda termasuk dan tidak terbatas kepada nama,
+                            alamat, nomor telepon, tanggal lahir, usia, jenis kelamin, email, pekerjaan, nomor kartu
+                            identitas/kependudukan, riwayat transaksi atau pembelian, nomor rekening, data keuangan, data
+                            transaksi, IP Address, data teknis perangkat maupun sistem yang Anda gunakan, data profil, data
+                            lokasi, informasi komunikasi Anda dengan Kami, dan informasi lainnya yang bersifat pribadi.</p>
+                        <p>Data Pribadi Anda dapat kami peroleh dan kumpulkan melalui mekanisme sebagai berikut: [...]</p>
+                    </div>
+                </div>
+
+                <!-- Bagian 3 -->
+                <div class="border border-gray-200 rounded-lg">
+                    <button onclick="toggleSection('sectionDiberikan')"
+                        class="w-full text-left text-lg font-semibold bg-gray-100 px-4 py-3 rounded-t-lg">
+                        Data Pribadi yang diberikan
+                    </button>
+                    <div id="sectionDiberikan" class="hidden p-4 text-sm space-y-2">
+                        <p>Data Pribadi Anda yang diberikan secara langsung, termasuk namun tidak terbatas pada:</p>
+                        <ul class="list-disc pl-6 space-y-1">
+                            <li>Pendaftaran Akun atau pengisian formulir digital dalam penggunaan Situs mySatelite.</li>
+                            <li>Pembuatan perjanjian dengan Perusahaan, pemesanan, penawaran, dan persetujuan Pembelian,
+                                termasuk dokumen-dokumen lainnya yang diberikan kepada Perusahaan dan/atau melalui Situs
+                                mySatelite.</li>
+                            <li>Memberikan Data Pribadi pada saat mengakses dan/atau menggunakan layanan dari pihak ketiga
+                                yang telah bekerja sama secara resmi dengan Perusahaan.</li>
+                            <li>Memberikan informasi tambahan kepada Perusahaan dalam bentuk foto, tulisan, video,
+                                pengiriman produk, pengiriman pertanyaan, komen atau tanggapan lainnya mengenai Situs
+                                mySatelite.</li>
+                            <li>Memberikan tanggapan, komentar, dan/atau feedback melalui e-mail, formulir, surat, panggilan
+                                telepon atau fitur/aplikasi diskusi lainnya.</li>
+                            <li>Mengisi data pada layanan Situs mySatelite untuk proses konfirmasi termasuk dan tidak
+                                terbatas pada proses pembayaran yang meliputi data rekening bank, kartu debit, kartu kredit,
+                                virtual account, dompet digital, internet banking, dan jasa pembayaran lainnya.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Bagian 4 -->
+                <div class="border border-gray-200 rounded-lg">
+                    <button onclick="toggleSection('sectionOtomatis')"
+                        class="w-full text-left text-lg font-semibold bg-gray-100 px-4 py-3 rounded-t-lg">
+                        Data Pribadi yang terkoleksi secara otomatis
+                    </button>
+                    <div id="sectionOtomatis" class="hidden p-4 text-sm space-y-2">
+                        <p>Data Pribadi Anda yang Kami peroleh atau dapatkan secara otomatis, yang juga dapat melalui pihak
+                            ketiga lainnya, termasuk namun tidak terbatas pada:</p>
+                        <ul class="list-disc pl-6 space-y-1">
+                            <li>Akses maupun interaksi melalui media sosial berkaitan dengan Situs mySatelite termasuk
+                                namun tidak terbatas kepada Facebook, Youtube, Instagram, X, dan/atau media sosial lainnya
+                                yang dapat mengumpulkan Data Pribadi Anda.</li>
+                            <li>Kunjungan pada Situs mySatelite, yang dapat memberikan informasi dan data teknis seperti IP
+                                Address, Mac Address, cookies dan informasi teknis lainnya yang memuat atau berhubungan
+                                dengan Data Pribadi Anda yang bisa tercatat melalui sistem pencatatan (logging system).</li>
+                            <li>Informasi lokasi Anda yang terhubung dengan layanan Kami melalui Situs mySatelite maupun
+                                fitur perangkat atau aplikasi lainnya (seperti maps, dan sebagainya). Lokasi ini tidak
+                                terbatas kepada alamat tempat tinggal yang berdasarkan wilayah, kota, provinsi namun juga
+                                dapat berdasarkan koordinat lokasi.</li>
+                        </ul>
+                        <p>Anda menyatakan dan memastikan dari waktu ke waktu bahwa segala informasi dan Data Pribadi
+                            diberikan dan/atau Kami peroleh adalah benar dan sah, serta telah mendapat persetujuan dari
+                            pihak manapun yang berhak atau berwenang terhadap Data Pribadi Anda. Segala risiko dan
+                            konsekuensi atas ketidakbenaran dan ketidaksahan Data Pribadi Anda maupun pelanggaran dan/atau
+                            kelalaian Anda terhadap Kebijakan Privasi ini merupakan tanggung jawab Anda sepenuhnya.</p>
+                    </div>
+                </div>
+
+            </div>
+            <div class="mt-4 flex justify-end gap-2">
+                <button onclick="closeModal()" class="px-4 py-2 rounded bg-gray-300 text-sm">Batal</button>
+                <button onclick="agreeTerms()" class="px-4 py-2 rounded bg-purple-500 text-white text-sm">Saya
+                    Setuju</button>
             </div>
         </div>
     </div>
@@ -410,9 +520,30 @@
                 auth_token: "{{ Session::get('auth_token') }}",
                 perangkat_id: "{{ $layanan->perangkat->encrypted_id }}",
                 status_perusahaan: "{{ $user->status_perusahaan }}",
-                latitude: "{{ $user->latitude }}",
-                longitude: "{{ $user->longitude }}",
+                latitude: "{{ $address->latitude }}",
+                longitude: "{{ $address->longitude }}",
             };
+
+            function openModal() {
+                document.getElementById('termsModal').classList.remove('hidden');
+                document.getElementById('termsModal').classList.add('flex');
+            }
+
+            function closeModal() {
+                document.getElementById('termsModal').classList.remove('flex');
+                document.getElementById('termsModal').classList.add('hidden');
+            }
+
+            function agreeTerms() {
+                document.getElementById('terms').checked = true;
+                document.getElementById('terms').disabled = false;
+                closeModal();
+            }
+
+            function toggleSection(id) {
+                const section = document.getElementById(id);
+                section.classList.toggle('hidden');
+            }
         </script>
         <script src="{{ asset('assets/js/order/address.js') }}"></script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAZJEfXn4JomPN0kP0TIlqL1Qr8AniNKIY&libraries=places">

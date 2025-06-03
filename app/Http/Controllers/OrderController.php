@@ -36,8 +36,9 @@ class OrderController extends Controller
         unset($layanan->perangkat->id, $layanan->perangkat->produk_id);
 
         $user = Auth::user();
+        $address = $user->address->first();
 
-        return view('product.payment_summary', compact('layanan', 'user'));
+        return view('product.payment_summary', compact('layanan', 'user', 'address'));
     }
 
 

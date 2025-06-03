@@ -43,7 +43,7 @@
                     @endphp
 
                     <div id="statusContent" class="mt-10">
-                        <ol class="overflow-hidden space-y-8">
+                        <ol class=" space-y-8">
                             {{-- Step 1: Pembayaran --}}
                             <li
                                 class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:{{ $activeStep >= 1 ? 'bg-purple-600' : 'bg-gray-200' }} after:inline-block after:absolute after:-bottom-10 after:left-4 lg:after:left-5">
@@ -160,7 +160,7 @@
 
                             {{-- Step 4: Pesanan Selesai --}}
                             <li
-                                class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:{{ $activeStep > 4 ? 'bg-purple-600' : 'bg-gray-200' }} after:inline-block after:absolute after:-bottom-12 after:left-4 lg:after:left-5">
+                                class="relative flex-1">
                                 <a class="flex items-center font-medium w-full">
                                     <span
                                         class="w-8 h-8 {{ $activeStep == 4 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">4</span>

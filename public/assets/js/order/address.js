@@ -146,24 +146,15 @@ let selectedLatLng;
 const accessToken = window.Laravel?.auth_token;
 const perangkatId = window.Laravel?.perangkat_id;
 
-document
-    .getElementById("openModalButton")
-    .addEventListener("click", function () {
-        document.getElementById("mapModal").classList.remove("hidden");
-        document.getElementById("mapModal").classList.add("flex");
-        initModalMap();
-    });
-
-document.getElementById("cancelButton").addEventListener("click", function () {
-    document.getElementById("mapModal").classList.add("hidden");
-});
-
 document.addEventListener("DOMContentLoaded", () => {
     // DOM Elements
+    const openModalBtn = document.getElementById("openModalButton");
+    const cancelBtn = document.getElementById("cancelButton");
     const radioAmbilDitempat = document.getElementById("ambil_ditempat");
     const checkboxAmbilDiTempat = document.getElementById(
         "checkbox_ambil_ditempat"
     );
+    const termsCheckbox = document.getElementById("terms");
     const ambilDitempatWrapper = document.getElementById(
         "ambilDitempatWrapper"
     );
@@ -171,7 +162,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const isCpUserCheckbox = document.getElementById("isCpUser");
     const isAddressUserCheckbox = document.getElementById("isAddressUser");
     const checkoutButton = document.getElementById("button-checkout");
-
     const penerimaFields = ["nama", "no_telp", "email"];
     const alamatFields = [
         "provinsi_id",
@@ -186,13 +176,110 @@ document.addEventListener("DOMContentLoaded", () => {
         "longitude",
     ];
 
+    // Modal Events
+    openModalBtn.addEventListener("click", () => {
+        document.getElementById("mapModal").classList.remove("hidden");
+        document.getElementById("mapModal").classList.add("flex");
+        initModalMap();
+    });
+
+    cancelBtn.addEventListener("click", () => {
+        document.getElementById("mapModal").classList.add("hidden");
+    });
+
+    // Map Initialization
+    function initMap() {
+        const options = {
+            center: { lat: -6.542589755264702, lng: 106.77215270271967 },
+            zoom: 13,
+            disableDefaultUI: true,
+        };
+
+        mainMap = new google.maps.Map(
+            document.getElementById("main-map"),
+            options
+        );
+
+        mainMarker = new google.maps.Marker({
+            position: options.center,
+            map: mainMap,
+            draggable: true,
+        });
+
+        mainMarker.addListener("dragend", () => {
+            selectedLatLng = mainMarker.getPosition();
+        });
+    }
+
+    function initModalMap() {
+        const defaultCenter = selectedLatLng || {
+            lat: -6.846066390644554,
+            lng: 106.75876386931151,
+        };
+
+        modalMap = new google.maps.Map(document.getElementById("modalMap"), {
+            center: defaultCenter,
+            zoom: 13,
+        });
+
+        modalMarker = new google.maps.Marker({
+            position: defaultCenter,
+            map: modalMap,
+            draggable: true,
+        });
+
+        selectedLatLng = modalMarker.getPosition();
+
+        modalMap.addListener("click", (e) => {
+            modalMarker.setPosition(e.latLng);
+            selectedLatLng = e.latLng;
+        });
+
+        const input = document.getElementById("searchInput");
+        const autocomplete = new google.maps.places.Autocomplete(input);
+        autocomplete.bindTo("bounds", modalMap);
+
+        autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
+            if (!place.geometry || !place.geometry.location) {
+                alert("Lokasi tidak ditemukan!");
+                return;
+            }
+
+            modalMap.panTo(place.geometry.location);
+            modalMap.setZoom(15);
+            modalMarker.setPosition(place.geometry.location);
+            selectedLatLng = place.geometry.location;
+        });
+
+        document
+            .getElementById("saveLocationButton")
+            .addEventListener("click", () => {
+                if (selectedLatLng?.lat && selectedLatLng?.lng) {
+                    panggilApiCourier(
+                        selectedLatLng.lat(),
+                        selectedLatLng.lng()
+                    );
+                    document.getElementById("latitude").value =
+                        selectedLatLng.lat();
+                    document.getElementById("longitude").value =
+                        selectedLatLng.lng();
+                    if (mainMarker && mainMap) {
+                        mainMarker.setPosition(selectedLatLng);
+                        mainMap.panTo(selectedLatLng);
+                    }
+                    validateForm();
+                } else {
+                    alert("Silakan pilih lokasi terlebih dahulu pada peta.");
+                }
+            });
+    }
+
     // Util Functions
     const toggleRequired = (fields, required) => {
         fields.forEach((id) => {
             const el = document.getElementById(id);
-            if (el) {
-                el.required = required;
-            }
+            if (el) el.required = required;
         });
     };
 
@@ -224,11 +311,33 @@ document.addEventListener("DOMContentLoaded", () => {
             checkboxAmbilDiTempat.checked ||
             isFieldsFilled(alamatFields);
         const ekspedisiValid = isEkspedisiSelected();
+        const termsAccepted = termsCheckbox.checked;
+        const isFormValid =
+            cpValid && addressValid && ekspedisiValid && termsAccepted;
 
-        checkoutButton.disabled = !(cpValid && addressValid && ekspedisiValid);
+        checkoutButton.disabled = !isFormValid;
+
+        // Ganti warna tombol
+        if (isFormValid) {
+            checkoutButton.classList.remove(
+                "bg-gray-400",
+                "cursor-not-allowed"
+            );
+            checkoutButton.classList.add(
+                "bg-purple-500",
+                "hover:bg-purple-600",
+                "cursor-pointer"
+            );
+        } else {
+            checkoutButton.classList.remove(
+                "bg-purple-500",
+                "hover:bg-purple-600",
+                "cursor-pointer"
+            );
+            checkoutButton.classList.add("bg-gray-400", "cursor-not-allowed");
+        }
     };
 
-    // Handle alamat pengiriman visibility & required
     const updateAlamatPengirimanDisplay = () => {
         const selected = document.querySelector(
             'input[name="ekspedisi"]:checked'
@@ -246,7 +355,6 @@ document.addEventListener("DOMContentLoaded", () => {
         validateForm();
     };
 
-    // Event Handlers
     const handleCpCheckboxChange = () => {
         const required = !isCpUserCheckbox.checked;
         toggleRequired(penerimaFields, required);
@@ -294,12 +402,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const setupEkspedisiListeners = () => {
         document
             .querySelectorAll('input[name="ekspedisi"]')
-            .forEach((radio) =>
-                radio.addEventListener("change", updateAlamatPengirimanDisplay)
-            );
+            .forEach((radio) => {
+                radio.addEventListener("change", updateAlamatPengirimanDisplay);
+            });
     };
 
-    // Manual checkbox for Ambil di Tempat
     checkboxAmbilDiTempat.addEventListener("change", () => {
         const isChecked = checkboxAmbilDiTempat.checked;
         alamatPengiriman.style.display = isChecked ? "none" : "grid";
@@ -308,8 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
         handleAddressCheckboxChange();
     });
 
-    // Courier API fetch
-    const panggilApiCourier = (lat, lng) => {
+    function panggilApiCourier(lat, lng) {
         const button = document.getElementById("saveLocationButton");
         const buttonText = button.querySelector(".button-text");
         const spinner = button.querySelector(".spinner");
@@ -369,9 +475,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 buttonText.textContent = "Simpan Lokasi";
                 spinner.classList.add("hidden");
             });
-    };
+    }
 
     // Init
+    initMap();
     attachInputListeners(penerimaFields);
     attachInputListeners(alamatFields);
     setupEkspedisiListeners();
@@ -380,13 +487,13 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAlamatPengirimanDisplay();
     validateForm();
 
-    // Trigger change if checkbox is pre-checked
+    // Trigger change if checkbox already checked
     if (isAddressUserCheckbox.checked) {
         isAddressUserCheckbox.dispatchEvent(new Event("change"));
     }
 
-    // Checkbox event listeners
     isCpUserCheckbox.addEventListener("change", handleCpCheckboxChange);
+    termsCheckbox.addEventListener("change", validateForm);
     isAddressUserCheckbox.addEventListener(
         "change",
         handleAddressCheckboxChange
@@ -475,70 +582,4 @@ function updateCourierPriceListeners() {
 document.addEventListener("DOMContentLoaded", () => {
     updateCourierPriceListeners();
     calculateTotal();
-});
-
-function initMap() {
-    const mainOptions = {
-        center: { lat: -6.542589755264702, lng: 106.77215270271967 },
-        zoom: 13,
-    };
-
-    mainMap = new google.maps.Map(
-        document.getElementById("main-map"),
-        mainOptions
-    );
-
-    mainMarker = new google.maps.Marker({
-        position: mainOptions.center,
-        map: mainMap,
-        draggable: true,
-    });
-
-    mainMarker.addListener("dragend", function () {
-        selectedLatLng = mainMarker.getPosition();
-    });
-}
-
-function initModalMap() {
-    const defaultCenter = { lat: -6.846066390644554, lng: 106.75876386931151 };
-
-    modalMap = new google.maps.Map(document.getElementById("modalMap"), {
-        center: defaultCenter,
-        zoom: 13,
-    });
-
-    modalMarker = new google.maps.Marker({
-        position: defaultCenter,
-        map: modalMap,
-        draggable: true,
-    });
-
-    selectedLatLng = modalMarker.getPosition();
-
-    modalMap.addListener("click", function (e) {
-        modalMarker.setPosition(e.latLng);
-        selectedLatLng = e.latLng;
-    });
-
-    const input = document.getElementById("searchInput");
-    const autocomplete = new google.maps.places.Autocomplete(input);
-    autocomplete.bindTo("bounds", modalMap);
-
-    autocomplete.addListener("place_changed", function () {
-        const place = autocomplete.getPlace();
-        if (!place.geometry || !place.geometry.location) {
-            alert("Lokasi tidak ditemukan!");
-            return;
-        }
-
-        modalMap.panTo(place.geometry.location);
-        modalMap.setZoom(15);
-
-        modalMarker.setPosition(place.geometry.location);
-        selectedLatLng = place.geometry.location;
-    });
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    initMap();
 });

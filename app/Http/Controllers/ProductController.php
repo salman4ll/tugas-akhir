@@ -10,9 +10,21 @@ use Illuminate\Support\Facades\Crypt;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Produk::all()->map(function ($product) {
+        $query = Produk::query();
+
+        // Filter berdasarkan kata kunci pencarian
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_produk', 'like', "%$search%")
+                    ->orWhere('deskripsi', 'like', "%$search%");
+            });
+        }
+
+        // Ambil data dan enkripsi id
+        $products = $query->get()->map(function ($product) {
             $product->encrypted_id = Crypt::encrypt($product->id);
             unset($product->id);
             return $product;

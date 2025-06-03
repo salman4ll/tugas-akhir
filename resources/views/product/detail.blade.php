@@ -8,15 +8,15 @@
             <div class="grid grid-cols-12 gap-8">
                 <div class="md:col-span-6 col-span-12 flex justify-center">
                     <img id="main-image" src="{{ asset('assets/images/' . $product->image) }}"
-                        alt="{{ $product->nama_kategori }}" class="w-full h-auto max-h-[400px] object-contain">
+                        alt="{{ $product->nama_produk }}" class="w-full h-auto max-h-[400px] object-contain">
 
                 </div>
 
                 <div class="md:col-span-6 col-span-12 flex flex-col gap-5">
-                    <p class="font-bold text-3xl">{{ $product->nama_kategori }}</p>
+                    <p class="font-bold text-3xl">{{ $product->nama_produk }}</p>
                     <p class="text-gray-700">{{ $product->deskripsi }}</p>
 
-                    <div class="">
+                    {{-- <div class="">
                         <button class="flex w-full text-left text-lg font-medium text-gray-800" onclick="toggleSpec(this)">
                             <span class="iconspec transition-transform duration-200">></span>
                             <span>Spesifikasi Produk</span>
@@ -33,7 +33,7 @@
                                 <li>- asjdasjsda</li>
                             </ul>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div class="flex flex-col gap-4">
                         <p class="text-xl font-semibold">Pilih Perangkat:</p>

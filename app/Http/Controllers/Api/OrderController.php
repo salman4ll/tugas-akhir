@@ -181,4 +181,76 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
+    public function getOrderDetail($id)
+    {
+        $order = Order::with(['customer', 'layanan', 'perangkat', 'alamatCustomer', 'cpCustomer', 'riwayatStatusOrder.status'])
+            ->where('unique_order', $id)
+            ->first();
+
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        $statusMap = [
+            1 => 'Wajib Pungut (WAPU)',
+            2 => 'Non-Wajib Pungut (non-WAPU) tanpa potong PPH 23',
+            3 => 'Non-Wajib Pungut (non-WAPU) potong PPH 23',
+        ];
+
+        $pengirimanMap = [
+            'ekspedisi' => 'Ekspedisi',
+            'ambil_ditempat' => 'Ambil Di Tempat',
+        ];
+
+
+        $address = $order->customer->address->first();
+
+        $customer = [
+            'nama' => $order->customer->nama_perusahaan,
+            'username' => $order->customer->username,
+            'npwp' => $order->customer->npwp_perusahaan,
+            'email' => $order->customer->email_perusahaan,
+            'no_telp' => $order->customer->no_telp_perusahaan,
+            'status_perusahaan' => $statusMap[$order->customer->status_perusahaan] ?? 'Status tidak diketahui',
+            'alamat' => [
+                'provinsi' => $address?->province?->nama ?? '-',
+                'kabupaten' => $address?->city?->nama ?? '-',
+                'kecamatan' => $address?->district?->nama ?? '-',
+                'kelurahan' => $address?->subDistrict?->nama ?? '-',
+                'alamat_lengkap' => $address?->alamat ?? '-',
+            ],
+        ];
+
+        $order = [
+            'id' => $order->unique_order,
+            'layanan' => $order->layanan->nama_layanan ?? '-',
+            'perangkat' => $order->perangkat->nama_perangkat ?? '-',
+            'produk' => $order->perangkat->produk?->nama_produk ?? '-',
+            'cp_customer' => $order->cpCustomer?->nama ?? '-',
+            'harga' => formatIDR($order->total_harga ?? 0),
+            'jenis_pengiriman' => $pengirimanMap[$order->jenis_pengiriman] ?? '-',
+            'status_terakhir' => $order->statusTerakhir?->status?->nama ?? '-',
+            'tanggal_pemesanan' => formatTanggal($order->created_at) ?? '-',
+            'penerima' => $order->cpCustomer?->nama ?? '-',
+            'no_telp_penerima' => $order->cpCustomer?->no_telp ?? '-',
+            'alamat_pengiriman' => [
+                'provinsi' => $order->alamatCustomer?->province?->nama ?? '-',
+                'kabupaten' => $order->alamatCustomer?->city?->nama ?? '-',
+                'kecamatan' => $order->alamatCustomer?->district?->nama ?? '-',
+                'kelurahan' => $order->alamatCustomer?->subDistrict?->nama ?? '-',
+                'alamat_lengkap' => $order->alamatCustomer?->alamat ?? '-',
+            ],
+        ];
+
+        // dd($customer);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'order' => $order,
+                'customer' => $customer,
+            ],
+        ]);
+    }
 }

@@ -96,8 +96,8 @@
     <div class="sm:hidden hidden" id="mobile-menu">
         <div class="space-y-1 px-2 pt-2 pb-3">
             <a href="{{ url('/') }}"
-                class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white">Beranda</a>
-            <a href="{{ url('/layanan') }}"
+                class="block rounded-md px-3 py-2 text-base font-medium text-white">Beranda</a>
+            <a href="{{ url('/products') }}"
                 class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#ED4436] hover:text-white">Layanan</a>
             <a href="{{ url('/promo') }}"
                 class="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-[#ED4436] hover:text-white">Promo</a>

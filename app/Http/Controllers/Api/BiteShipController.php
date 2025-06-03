@@ -119,11 +119,8 @@ class BiteShipController extends Controller
             ], 422);
         }
 
-        $user = Auth::guard('sanctum')->user();
-
         $order = Order::with('metodePengiriman', 'perangkat', 'alamatCustomer', 'cpCustomer')
             ->where('unique_order', $request->order_id)
-            ->where('customer_id', $user->id)
             ->first();
 
         if (!$order) {
@@ -251,7 +248,6 @@ class BiteShipController extends Controller
 
     public function webhookBiteship(Request $request)
     {
-        // Cek apakah request kosong atau tidak memiliki data yang dibutuhkan
         if (!$request->has(['status', 'order_id', 'courier_tracking_id'])) {
             return response()->json([
                 'status' => 'ok',
