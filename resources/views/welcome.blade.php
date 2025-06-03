@@ -21,7 +21,7 @@
       </p>
 
       <button class="rounded-[50px] mt-10 text-white bg-[#ED0226] bg-gradient-to-[252deg] font-semibold inline-flex px-[60px] py-[15px] justify-center items-center">
-        Mulai Perjalanan Mu
+        Mulai Perjalanan Mua
     </button>
     </div>
 </div>
