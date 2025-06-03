@@ -55,6 +55,10 @@ class CheckPaymentStatus extends Command
                     isset($data['status_code']) && $data['status_code'] === '404' &&
                     isset($data['status_message']) && $data['status_message'] === "Transaction doesn't exist."
                 ) {
+                    if ($order->created_at->addDay()->gt(now())) {
+                        Log::info("Order {$orderId} is still within 1 day of creation, skipping expiration check.");
+                        continue;
+                    }
                     RiwayatStatusOrder::create([
                         'order_id' => $order->id,
                         'status_id' => 9,

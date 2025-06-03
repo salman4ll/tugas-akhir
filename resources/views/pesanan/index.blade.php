@@ -6,7 +6,8 @@
     <div class="bg-gray-100">
         <div class="mx-auto container w-full px-8 py-10 min-h-screen text-gray-800">
             <form method="GET" action="{{ route('user.pesanan') }}" id="sortForm">
-                <select name="sort" id="filter" class="font-bold text-lg py-2 px-5 rounded-3xl border border-black hidden sm:flex"
+                <select name="sort" id="filter"
+                    class="font-bold text-lg py-2 px-5 rounded-3xl border border-black hidden sm:flex"
                     onchange="document.getElementById('sortForm').submit()">
                     <option value="desc" {{ request('sort') == 'desc' ? 'selected' : '' }}>Pesanan Terbaru</option>
                     <option value="asc" {{ request('sort') == 'asc' ? 'selected' : '' }}>Pesanan Terlama</option>
@@ -125,9 +126,27 @@
                 @endif
             </div>
 
+            <div class="mt-6 flex justify-between items-center">
+                {{-- Tombol Sebelumnya --}}
+                @if ($orders->onFirstPage())
+                    <span class="px-4 py-2 text-gray-400 cursor-not-allowed">« Sebelumnya</span>
+                @else
+                    <a href="{{ $orders->previousPageUrl() }}"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded">« Sebelumnya</a>
+                @endif
 
-            <div class="mt-10">
-                {{ $orders->links() }}
+                {{-- Info Halaman --}}
+                <span class="text-sm text-gray-600">
+                    Halaman {{ $orders->currentPage() }} dari {{ $orders->lastPage() }}
+                </span>
+
+                {{-- Tombol Selanjutnya --}}
+                @if ($orders->hasMorePages())
+                    <a href="{{ $orders->nextPageUrl() }}"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded">Selanjutnya »</a>
+                @else
+                    <span class="px-4 py-2 text-gray-400 cursor-not-allowed">Selanjutnya »</span>
+                @endif
             </div>
 
         </div>
