@@ -303,6 +303,22 @@ document.addEventListener("DOMContentLoaded", () => {
             (input) => input.checked
         );
 
+    document.getElementById("agreeButton").addEventListener("click", () => {
+        const termsCheckbox = document.getElementById("terms");
+        if (termsCheckbox) termsCheckbox.checked = true;
+
+        validateForm();
+        closeModal();
+    });
+
+    document.getElementById("disagreeButton").addEventListener("click", () => {
+        const termsCheckbox = document.getElementById("terms");
+        if (termsCheckbox) termsCheckbox.checked = false;
+
+        validateForm();
+        closeModal();
+    });
+
     const validateForm = () => {
         const cpValid =
             isCpUserCheckbox.checked || isFieldsFilled(penerimaFields);

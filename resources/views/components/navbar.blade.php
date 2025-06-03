@@ -47,21 +47,13 @@
             <!-- Right side: Profile or Login -->
             <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 @auth
-                    <!-- Notification -->
-                    <button type="button"
-                        class="relative rounded-full p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white">
-                        <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-                        </svg>
-                    </button>
-
                     <!-- Profile dropdown -->
                     <div class="relative ml-3">
                         <button type="button" class="relative flex rounded-full bg-gray-800 text-sm" id="user-menu-button">
-                            <img class="size-8 rounded-full"
-                                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                alt="">
+                            <div
+                                class="size-8 rounded-full bg-[#ED0226] text-white flex items-center justify-center text-sm font-semibold">
+                                {{ strtoupper(substr(Auth::user()->nama_perusahaan, 0, 1)) }}
+                            </div>
                         </button>
 
                         <div id="profile-dropdown"

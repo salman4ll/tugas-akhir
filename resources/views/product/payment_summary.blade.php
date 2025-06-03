@@ -479,8 +479,8 @@
 
             </div>
             <div class="mt-4 flex justify-end gap-2">
-                <button onclick="closeModal()" class="px-4 py-2 rounded bg-gray-300 text-sm">Batal</button>
-                <button onclick="agreeTerms()" class="px-4 py-2 rounded bg-purple-500 text-white text-sm">Saya
+                <button id="disagreeButton" class="px-4 py-2 rounded bg-gray-300 text-sm">Batal</button>
+                <button id="agreeButton" class="px-4 py-2 rounded bg-purple-500 text-white text-sm">Saya
                     Setuju</button>
             </div>
         </div>
@@ -534,11 +534,11 @@
                 document.getElementById('termsModal').classList.add('hidden');
             }
 
-            function agreeTerms() {
-                document.getElementById('terms').checked = true;
-                document.getElementById('terms').disabled = false;
-                closeModal();
-            }
+            // function agreeTerms() {
+            //     document.getElementById('terms').checked = true;
+            //     document.getElementById('terms').disabled = false;
+            //     closeModal();
+            // }
 
             function toggleSection(id) {
                 const section = document.getElementById(id);

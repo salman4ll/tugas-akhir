@@ -124,8 +124,8 @@ class OrderController extends Controller
                 $jenisPengiriman = "ambil_ditempat";
             } else {
                 $jenisPengiriman = "ekspedisi";
-                $latitude = $request->isAddressUser ? $user->latitude : $request->latitude;
-                $longitude = $request->isAddressUser ? $user->longitude : $request->longitude;
+                $latitude = $request->isAddressUser ? $addressUser->latitude : $request->latitude;
+                $longitude = $request->isAddressUser ? $addressUser->longitude : $request->longitude;
                 $url = env('BITESHIP_URL') . '/v1/rates/couriers';
                 $token = env('BITESHIP_AUTH_TOKEN');
 
@@ -145,9 +145,11 @@ class OrderController extends Controller
                         ]
                     ]);
 
+                    dd($response->json());
                 if ($response->failed()) {
                     throw new \Exception('Gagal mengambil data ongkir dari Biteship.');
                 }
+
 
                 $courier = ShippingMethod::find($request->ekspedisi);
                 $pricings = $response['pricing'] ?? [];

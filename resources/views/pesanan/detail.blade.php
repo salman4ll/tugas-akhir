@@ -329,7 +329,7 @@
                             <div class="flex flex-col gap-2 mt-6">
                                 <h2 class="font-semibold">Ekspedisi</h2>
                                 <div class="flex justify-between gap-2">
-                                    <span>{{ $order->metodePengiriman->courier_name }}</span>
+                                    <span>{{ $order->metodePengiriman->courier_name }} - {{ $order->metodePengiriman->description }}</span>
                                     <span>{{ formatIDR($shippingCost) }}</span>
                                 </div>
                             </div>
