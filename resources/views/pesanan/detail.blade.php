@@ -9,7 +9,8 @@
                 <div class="col col-span-4">
                     <div class="flex flex-col gap-8">
                         <div class="bg-gray-200 p-6 rounded-xl shadow-xl">
-                            <img src="{{ asset('assets/images/' . $order->perangkat->produk->image) }}" class="w-full rounded-lg" alt="">
+                            <img src="{{ asset('assets/images/' . $order->perangkat->produk->image) }}"
+                                class="w-full rounded-lg" alt="">
                         </div>
                         <div class="flex flex-col gap-5">
                             <p class="font-semibold text-3xl">{{ $order->perangkat->produk->nama_produk }}</p>
@@ -38,140 +39,179 @@
                             $statusId >= 3 && $statusId <= 6 => 2,
                             $statusId == 7 => 3,
                             $statusId == 8 => 4,
+                            $statusId == 9 => 5,
                             default => 0,
                         };
                     @endphp
 
                     <div id="statusContent" class="mt-10">
-                        <ol class=" space-y-8">
-                            {{-- Step 1: Pembayaran --}}
-                            <li
-                                class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:{{ $activeStep >= 1 ? 'bg-purple-600' : 'bg-gray-200' }} after:inline-block after:absolute after:-bottom-10 after:left-4 lg:after:left-5">
-                                <div class="flex items-start font-medium w-full">
-                                    <span
-                                        class="w-8 h-8 {{ $activeStep >= 1 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">1</span>
-                                    <div class="flex flex-col">
-                                        <h4
-                                            class="text-lg {{ $activeStep >= 1 ? 'text-purple-600' : 'text-gray-900' }} font-semibold">
-                                            Pembayaran</h4>
-                                        <span class="text-xl font-semibold mb-2">{{ formatIDR($order->total_harga) }}</span>
-                                        @if ($activeStep === 1)
-                                            <button class=" text-white w-60 px-4 py-2 rounded bg-purple-600 hover:bg-purple-700 transition"
-                                                onclick="window.location.href = '{{ $order->payment_url }}'">Bayar
-                                                Sekarang</button>
-                                        @endif
-                                    </div>
+                        @if ($activeStep == 5)
+                            {{-- Step: Pesanan Dibatalkan --}}
+                            <div class="flex items-start font-medium w-full">
+                                <span
+                                    class="w-8 h-8 bg-red-50 border-red-600 text-red-600 border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">!</span>
+                                <div class="flex flex-col gap-3">
+                                    <h4 class="text-lg text-red-600 font-semibold">Pesanan Dibatalkan</h4>
+                                    <span class="text-gray-600">Pesanan ini telah dibatalkan. Jika Anda merasa ini adalah
+                                        kesalahan, silakan hubungi Customer Service kami.</span>
+                                    @if (!empty($order->statusTerakhir->keterangan))
+                                        <span class="text-sm text-red-500 italic">
+                                            Alasan pembatalan: {{ $order->statusTerakhir->keterangan }}
+                                        </span>
+                                    @endif
+                                    <a href="https://wa.me/6281214931661" target="_blank"
+                                        class="flex items-center justify-center gap-2 w-60 px-4 py-2 rounded bg-green-500 hover:bg-green-600 text-white transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M20.52 3.48A11.78 11.78 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.28-1.63a11.9 11.9 0 0 0 5.72 1.47h.01c6.63 0 12-5.37 12-12 0-3.19-1.25-6.18-3.48-8.52zM12 22c-1.64 0-3.25-.42-4.68-1.21l-.34-.19-3.73.97 1-3.63-.22-.37A9.94 9.94 0 0 1 2 12c0-5.52 4.48-10 10-10 2.67 0 5.18 1.04 7.07 2.93A9.94 9.94 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.05-7.61c-.28-.14-1.65-.82-1.91-.91s-.44-.14-.62.14c-.18.28-.71.91-.87 1.1-.16.18-.32.2-.6.07-.28-.14-1.17-.43-2.24-1.39-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.32.42-.48.14-.16.18-.28.28-.46.09-.18.05-.34-.02-.48s-.62-1.49-.85-2.04c-.22-.52-.44-.45-.62-.46l-.52-.01c-.18 0-.48.07-.73.34s-.96.94-.96 2.3c0 1.36.99 2.68 1.13 2.87.14.18 1.94 2.96 4.7 4.15.66.29 1.18.46 1.58.59.66.21 1.26.18 1.74.11.53-.08 1.65-.67 1.88-1.32.23-.66.23-1.23.16-1.32-.07-.09-.25-.14-.53-.28z" />
+                                        </svg>
+                                        Hubungi via WhatsApp
+                                    </a>
                                 </div>
-                            </li>
+                            </div>
+                        @else
+                            <ol class=" space-y-8">
+                                {{-- Step 1: Pembayaran --}}
+                                <li
+                                    class="relative flex-1 after:content-[''] after:w-0.5 after:h-full {{ $activeStep >= 1 && $statusId == 2 ? 'after:bg-purple-600' : 'after:bg-gray-200' }} after:inline-block after:absolute after:-bottom-10 after:left-4 lg:after:left-5">
+                                    <div class="flex items-start font-medium w-full">
+                                        <span
+                                            class="w-8 h-8 {{ $activeStep >= 1 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">1</span>
+                                        <div class="flex flex-col">
+                                            <h4
+                                                class="text-lg {{ $activeStep >= 1 ? 'text-purple-600' : 'text-gray-900' }} font-semibold">
+                                                Pembayaran
+                                            </h4>
+                                            <span
+                                                class="text-xl font-semibold mb-2">{{ formatIDR($order->total_harga) }}</span>
 
-                            {{-- Step 2: Pengiriman --}}
-                            <li
-                                class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:{{ $activeStep >= 2 ? 'bg-purple-600' : 'bg-gray-200' }} after:inline-block after:absolute after:-bottom-10 after:left-4 lg:after:left-5">
-                                <a class="flex font-medium w-full">
-                                    <span
-                                        class="w-8 h-8 {{ $activeStep >= 2 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">2</span>
-                                    <div class="flex flex-col">
-                                        <h4
-                                            class="text-lg {{ $activeStep >= 2 ? 'text-purple-600' : 'text-gray-900' }} font-semibold">
-                                            Pengiriman</h4>
-                                        @if ($activeStep >= 2)
-                                            <small class="text-gray-500">Dikirim pada
-                                                {{ optional($order->trackingOrder->first())->created_at ? formatTanggal($order->trackingOrder->first()->created_at) : '-' }}</small>
-                                            Paling Lambat tiba
-                                            {{ $order->metodePengiriman->duration_estimate }}</small>
-                                            <div class="flex items-center space-x-2">
-                                                <span>No resi: <span id="nomorResi">{{ $order->nomor_resi }}</span></span>
-                                                <button onclick="copyResi()" class="text-gray-500 hover:text-gray-700"
-                                                    title="Salin Resi">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24">
-                                                        <path fill="currentColor"
-                                                            d="M15.24 2h-3.894c-1.764 0-3.162 0-4.255.148c-1.126.152-2.037.472-2.755 1.193c-.719.721-1.038 1.636-1.189 2.766C3 7.205 3 8.608 3 10.379v5.838c0 1.508.92 2.8 2.227 3.342c-.067-.91-.067-2.185-.067-3.247v-5.01c0-1.281 0-2.386.118-3.27c.127-.948.413-1.856 1.147-2.593s1.639-1.024 2.583-1.152c.88-.118 1.98-.118 3.257-.118h3.07c1.276 0 2.374 0 3.255.118A3.6 3.6 0 0 0 15.24 2" />
-                                                        <path fill="currentColor"
-                                                            d="M6.6 11.397c0-2.726 0-4.089.844-4.936c.843-.847 2.2-.847 4.916-.847h2.88c2.715 0 4.073 0 4.917.847S21 8.671 21 11.397v4.82c0 2.726 0 4.089-.843 4.936c-.844.847-2.202.847-4.917.847h-2.88c-2.715 0-4.073 0-4.916-.847c-.844-.847-.844-2.21-.844-4.936z" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-
-                                            <span>{{ $order->trackingOrder->last()->note ?? '-' }}</span>
-
-                                            <!-- Tombol -->
-                                            <button id="trackOrderBtn" class="w-auto underline text-[#3399FE] flex">Lacak
-                                                Pesanan Mu</button>
-                                        @endif
-
+                                            @if ($activeStep === 1 && $statusId == 1)
+                                                <button
+                                                    class="text-white w-60 px-4 py-2 rounded bg-purple-600 hover:bg-purple-700 transition"
+                                                    onclick="window.location.href = '{{ $order->payment_url }}'">Bayar
+                                                    Sekarang</button>
+                                            @elseif ($activeStep === 1 && $statusId !== 1)
+                                                <span class="font-medium">Pembayaran berhasil. Invoice telah dikirim ke
+                                                    email <span
+                                                        class="font-semibold">{{ $order->cpCustomer->email }}</span>.</span>
+                                            @endif
+                                        </div>
                                     </div>
-                                </a>
-                            </li>
+                                </li>
 
-                            {{-- Step 3: Konfirmasi Pesanan --}}
-                            <li
-                                class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:{{ $activeStep >= 3 ? 'bg-purple-600' : 'bg-gray-200' }} after:inline-block after:absolute after:-bottom-10 after:left-4 lg:after:left-5">
-                                <a class="flex font-medium w-full">
-                                    <span
-                                        class="w-8 h-8 {{ $activeStep >= 3 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">3</span>
-                                    <div class="flex flex-col">
-                                        <h4
-                                            class="text-lg {{ $activeStep >= 3 ? 'text-purple-600' : 'text-gray-900' }} font-semibold">
-                                            Konfirmasi Pesanan</h4>
-                                        @if ($activeStep >= 3)
-                                            <small class="text-gray-500 mb-4">Sampai pada
-                                                {{ formatTanggal($waktuPengirimanSampai) }}</small>
 
-                                            @if ($activeStep == 3)
-                                                <div class="border border-dashed border-gray-400 p-3 flex flex-col items-center justify-center space-y-2 cursor-pointer w-fit rounded-md"
-                                                    onclick="document.getElementById('imageUpload').click()"
-                                                    id="uploadContainer">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" class="text-gray-500" id="uploadIcon">
-                                                        <path fill="currentColor"
-                                                            d="m9.828 5l-2 2H4v12h16V7h-3.828l-2-2zM9 3h6l2 2h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4zm3 15a5.5 5.5 0 1 1 0-11a5.5 5.5 0 0 1 0 11m0-2a3.5 3.5 0 1 0 0-7a3.5 3.5 0 0 0 0 7" />
-                                                    </svg>
-                                                    <input type="file" id="imageUpload" class="hidden"
-                                                        accept="image/*" />
+                                {{-- Step 2: Pengiriman --}}
+                                <li
+                                    class="relative flex-1 after:content-[''] after:w-0.5 after:h-full {{ $activeStep >= 2 ? 'after:bg-purple-600' : 'after:bg-gray-200' }} after:inline-block after:absolute after:-bottom-10 after:left-4 lg:after:left-5">
+                                    <a class="flex font-medium w-full">
+                                        <span
+                                            class="w-8 h-8 {{ $activeStep >= 2 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">2</span>
+                                        <div class="flex flex-col">
+                                            <h4
+                                                class="text-lg {{ $activeStep >= 2 ? 'text-purple-600' : 'text-gray-900' }} font-semibold">
+                                                Pengiriman</h4>
+                                            @if ($activeStep >= 2)
+                                                <small class="text-gray-500">Dikirim pada
+                                                    {{ optional($order->trackingOrder->first())->created_at ? formatTanggal($order->trackingOrder->first()->created_at) : '-' }}</small>
+                                                Paling Lambat tiba
+                                                {{ $order->metodePengiriman->duration_estimate }}</small>
+                                                <div class="flex items-center space-x-2">
+                                                    <span>No resi: <span
+                                                            id="nomorResi">{{ $order->nomor_resi }}</span></span>
+                                                    <button onclick="copyResi()" class="text-gray-500 hover:text-gray-700"
+                                                        title="Salin Resi">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                            height="24" viewBox="0 0 24 24">
+                                                            <path fill="currentColor"
+                                                                d="M15.24 2h-3.894c-1.764 0-3.162 0-4.255.148c-1.126.152-2.037.472-2.755 1.193c-.719.721-1.038 1.636-1.189 2.766C3 7.205 3 8.608 3 10.379v5.838c0 1.508.92 2.8 2.227 3.342c-.067-.91-.067-2.185-.067-3.247v-5.01c0-1.281 0-2.386.118-3.27c.127-.948.413-1.856 1.147-2.593s1.639-1.024 2.583-1.152c.88-.118 1.98-.118 3.257-.118h3.07c1.276 0 2.374 0 3.255.118A3.6 3.6 0 0 0 15.24 2" />
+                                                            <path fill="currentColor"
+                                                                d="M6.6 11.397c0-2.726 0-4.089.844-4.936c.843-.847 2.2-.847 4.916-.847h2.88c2.715 0 4.073 0 4.917.847S21 8.671 21 11.397v4.82c0 2.726 0 4.089-.843 4.936c-.844.847-2.202.847-4.917.847h-2.88c-2.715 0-4.073 0-4.916-.847c-.844-.847-.844-2.21-.844-4.936z" />
+                                                        </svg>
+                                                    </button>
                                                 </div>
-                                            @elseif($activeStep > 3)
-                                                <div
-                                                    class="border border-dashed border-gray-400 p-3 flex flex-col items-center justify-center space-y-2 cursor-pointer w-fit rounded-md">
-                                                    <img src="{{ Storage::url($order->confirmation_image) }}"
-                                                        alt="Bukti Konfirmasi" class=" object-cover rounded-md">
-                                                </div>
+
+                                                <span>{{ $order->trackingOrder->last()->note ?? '-' }}</span>
+
+                                                <!-- Tombol -->
+                                                <button id="trackOrderBtn"
+                                                    class="w-auto underline text-[#3399FE] flex">Lacak
+                                                    Pesanan Mu</button>
                                             @endif
 
-                                            <small class="text-gray-500 mt-4">Pesanan akan terkonfirmasi secara otomatis
-                                                setelah
-                                                1x24 jam</small>
-                                            <button onclick="handleConfirm()"
-                                                class=" text-white w-60 px-4 py-2 rounded {{ $activeStep == 3 ? 'bg-purple-600 hover:bg-purple-700 transition' : 'bg-gray-500 cursor-not-allowed' }}"
-                                                {{ $activeStep == 3 ? '' : 'disabled' }}>
-                                                Konfirmasi Pesanan
-                                            </button>
+                                        </div>
+                                    </a>
+                                </li>
 
-                                            <small class="text-gray-500 mt-4">Pesanan belum datang?</small>
-                                            <button onclick="window.open('https://wa.me/6281214931661', '_blank')"
-                                                class="text-white w-60 px-4 py-2 rounded {{ $activeStep == 3 ? 'bg-purple-600 hover:bg-purple-700 transition' : 'bg-gray-500' }}"
-                                                {{ $activeStep == 3 ? '' : '' }}>
-                                                Hubungi AM
-                                            </button>
-                                        @endif
-                                    </div>
-                                </a>
-                            </li>
+                                {{-- Step 3: Konfirmasi Pesanan --}}
+                                <li
+                                    class="relative flex-1 after:content-[''] after:w-0.5 after:h-full {{ $activeStep >= 3 ? 'after:bg-purple-600' : 'after:bg-gray-200' }} after:inline-block after:absolute after:-bottom-10 after:left-4 lg:after:left-5">
+                                    <a class="flex font-medium w-full">
+                                        <span
+                                            class="w-8 h-8 {{ $activeStep >= 3 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">3</span>
+                                        <div class="flex flex-col">
+                                            <h4
+                                                class="text-lg {{ $activeStep >= 3 ? 'text-purple-600' : 'text-gray-900' }} font-semibold">
+                                                Konfirmasi Pesanan</h4>
+                                            @if ($activeStep >= 3)
+                                                <small class="text-gray-500 mb-4">Sampai pada
+                                                    {{ formatTanggal($waktuPengirimanSampai) }}</small>
 
-                            {{-- Step 4: Pesanan Selesai --}}
-                            <li
-                                class="relative flex-1">
-                                <a class="flex items-center font-medium w-full">
-                                    <span
-                                        class="w-8 h-8 {{ $activeStep == 4 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">4</span>
-                                    <div class="block">
-                                        <h4
-                                            class="text-lg {{ $activeStep == 4 ? 'text-purple-600' : 'text-gray-900' }} font-semibold">
-                                            Pesanan Selesai</h4>
-                                    </div>
-                                </a>
-                            </li>
-                        </ol>
+                                                @if ($activeStep == 3)
+                                                    <div class="border border-dashed border-gray-400 p-3 flex flex-col items-center justify-center space-y-2 cursor-pointer w-fit rounded-md"
+                                                        onclick="document.getElementById('imageUpload').click()"
+                                                        id="uploadContainer">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                            height="24" viewBox="0 0 24 24" class="text-gray-500"
+                                                            id="uploadIcon">
+                                                            <path fill="currentColor"
+                                                                d="m9.828 5l-2 2H4v12h16V7h-3.828l-2-2zM9 3h6l2 2h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4zm3 15a5.5 5.5 0 1 1 0-11a5.5 5.5 0 0 1 0 11m0-2a3.5 3.5 0 1 0 0-7a3.5 3.5 0 0 0 0 7" />
+                                                        </svg>
+                                                        <input type="file" id="imageUpload" class="hidden"
+                                                            accept="image/*" />
+                                                    </div>
+                                                @elseif($activeStep > 3)
+                                                    <div
+                                                        class="border border-dashed border-gray-400 p-3 flex flex-col items-center justify-center space-y-2 cursor-pointer w-fit rounded-md">
+                                                        <img src="{{ Storage::url($order->confirmation_image) }}"
+                                                            alt="Bukti Konfirmasi" class=" object-cover rounded-md">
+                                                    </div>
+                                                @endif
+
+                                                <small class="text-gray-500 mt-4">Pesanan akan terkonfirmasi secara otomatis
+                                                    setelah
+                                                    1x24 jam</small>
+                                                <button onclick="handleConfirm()"
+                                                    class=" text-white w-60 px-4 py-2 rounded {{ $activeStep == 3 ? 'bg-purple-600 hover:bg-purple-700 transition' : 'bg-gray-500 cursor-not-allowed' }}"
+                                                    {{ $activeStep == 3 ? '' : 'disabled' }}>
+                                                    Konfirmasi Pesanan
+                                                </button>
+
+                                                <small class="text-gray-500 mt-4">Pesanan belum datang?</small>
+                                                <button onclick="window.open('https://wa.me/6281214931661', '_blank')"
+                                                    class="text-white w-60 px-4 py-2 rounded {{ $activeStep == 3 ? 'bg-purple-600 hover:bg-purple-700 transition' : 'bg-gray-500' }}"
+                                                    {{ $activeStep == 3 ? '' : '' }}>
+                                                    Hubungi AM
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </a>
+                                </li>
+
+                                {{-- Step 4: Pesanan Selesai --}}
+                                <li class="relative flex-1">
+                                    <a class="flex items-center font-medium w-full">
+                                        <span
+                                            class="w-8 h-8 {{ $activeStep == 4 ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-gray-50 border-gray-200 text-gray-400' }} border-2 rounded-full flex justify-center items-center mr-3 text-sm lg:w-10 lg:h-10">4</span>
+                                        <div class="block">
+                                            <h4
+                                                class="text-lg {{ $activeStep == 4 ? 'text-purple-600' : 'text-gray-900' }} font-semibold">
+                                                Pesanan Selesai</h4>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ol>
+                        @endif
                     </div>
 
                     {{-- End Content Status Order --}}

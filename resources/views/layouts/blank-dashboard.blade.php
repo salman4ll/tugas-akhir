@@ -21,7 +21,9 @@
     <div class="min-h-screen">
         @include('components.navbar-dashboard')
 
-        @yield('content')
+        <div class="container mx-auto">
+            @yield('content')
+        </div>
     </div>
 
     <!-- Scripts -->
