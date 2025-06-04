@@ -3,10 +3,10 @@
 @section('title', 'Product')
 
 @section('content')
-    <div class="bg-gray-100">
+    <div class="bg-gray-100 w-full">
         <div class="container grid grid-cols-12 w-full mx-auto py-10 gap-8">
             @if ($orderIsNotPaid)
-                <div class="col-span-4 bg-gray-200 p-4 rounded-lg flex flex-col gap-4">
+                <div class="col-span-12 md:col-span-4 bg-gray-200 p-4 rounded-lg flex flex-col gap-4 h-fit">
                     <div class="flex justify-between">
                         <div class="flex flex-col">
                             <span>Pesanan Belum Dibayar</span>
@@ -43,51 +43,55 @@
                     </div>
                 </div>
             @else
-                <div class="col-span-4 bg-gray-200 p-4 rounded-lg text-center">
+                <div class="col-span-12 md:col-span-4 bg-gray-200 p-4 rounded-lg text-center h-fit">
                     <p class="text-gray-600">Tidak ada pesanan yang perlu dibayar saat ini.</p>
                 </div>
             @endif
-            <div class="col-span-8 bg-gray-200 p-4 rounded-lg flex flex-col gap-4">
+            <div class="col-span-12 md:col-span-8 bg-gray-200 p-4 rounded-lg flex flex-col gap-4">
                 <span class="font-bold text-xl">Pesanan</span>
 
                 @if ($order->isEmpty())
                     <p class="text-center text-gray-500 py-6">Belum ada pesanan.</p>
                 @else
-                    <table class="min-w-full border border-gray-300 rounded-lg overflow-hidden">
-                        <thead class="">
-                            <tr>
-                                <th class="py-2 px-4 border-b border-gray-400 text-left">ID Order</th>
-                                <th class="py-2 px-4 border-b border-gray-400 text-left">Nama Produk</th>
-                                <th class="py-2 px-4 border-b border-gray-400 text-left">Tanggal Pesanan</th>
-                                <th class="py-2 px-4 border-b border-gray-400 text-left">Status Terakhir</th>
-                                <th class="py-2 px-4 border-b border-gray-400 text-center"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($order as $item)
-                                <tr class="hover:bg-gray-100">
-                                    <td class="py-2 px-4 border-b border-gray-300">{{ $item->unique_order }}</td>
-                                    <td class="py-2 px-4 border-b border-gray-300">
-                                        {{ $item->perangkat->produk->nama_produk ?? '-' }}</td>
-                                    <td class="py-2 px-4 border-b border-gray-300">{{ formatTanggal($item->created_at) }}
-                                    </td>
-                                    <td class="py-2 px-4 border-b border-gray-300">
-                                        {{ $item->statusTerakhir->keterangan ?? '-' }}</td>
-                                    <td class="py-2 px-4 border-b border-gray-300 text-center">
-                                        <a href="{{ url('user/pesanan/detail/' . $item->unique_order) }}"
-                                            class="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 transition">
-                                            Detail
-                                        </a>
-                                    </td>
+                    <div class="overflow-x-auto w-full">
+                        <table class="min-w-full border border-gray-300 rounded-lg">
+                            <thead class="">
+                                <tr>
+                                    <th class="py-2 px-4 border-b border-gray-400 text-left">ID Order</th>
+                                    <th class="py-2 px-4 border-b border-gray-400 text-left">Nama Produk</th>
+                                    <th class="py-2 px-4 border-b border-gray-400 text-left">Tanggal Pesanan</th>
+                                    <th class="py-2 px-4 border-b border-gray-400 text-left">Status Terakhir</th>
+                                    <th class="py-2 px-4 border-b border-gray-400 text-center"></th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach ($order as $item)
+                                    <tr class="hover:bg-gray-100">
+                                        <td class="py-2 px-4 border-b border-gray-300">{{ $item->unique_order }}</td>
+                                        <td class="py-2 px-4 border-b border-gray-300">
+                                            {{ $item->perangkat->produk->nama_produk ?? '-' }}</td>
+                                        <td class="py-2 px-4 border-b border-gray-300">
+                                            {{ formatTanggal($item->created_at) }}
+                                        </td>
+                                        <td class="py-2 px-4 border-b border-gray-300">
+                                            {{ $item->statusTerakhir->keterangan ?? '-' }}</td>
+                                        <td class="py-2 px-4 border-b border-gray-300 text-center">
+                                            <a href="{{ url('user/pesanan/detail/' . $item->unique_order) }}"
+                                                class="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 transition">
+                                                Detail
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <button class="text-center text-purple-600 font-bold hover:text-purple-700" onclick="window.location.href='{{ url('user/pesanan') }}'">Lihat Semua</button>
+                    <button class="text-center text-purple-600 font-bold hover:text-purple-700"
+                        onclick="window.location.href='{{ url('user/pesanan') }}'">Lihat Semua</button>
                 @endif
-            </div>
 
+            </div>
         </div>
     </div>
 @endsection

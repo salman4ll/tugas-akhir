@@ -14,6 +14,15 @@ export default {
             fontFamily: {
                 montserrat: ["Montserrat", "sans-serif"],
             },
+            animation: {
+                slideDown: "slideDown 1.5s linear infinite",
+            },
+            keyframes: {
+                slideDown: {
+                    "0%": { backgroundPosition: "0% 0%" },
+                    "100%": { backgroundPosition: "0% 100%" },
+                },
+            },
         },
     },
     plugins: [],

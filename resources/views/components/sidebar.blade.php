@@ -68,6 +68,12 @@
                     </ul>
 
                 </li>
+                <li>
+                    <a href="{{ route('admin.get-metode-pengiriman') }}"
+                        class="block px-4 py-2 hover:bg-gray-200 {{ request()->routeIs('admin.get-metode-pengiriman') ? 'bg-gray-200 font-bold' : '' }}">
+                        Ekspedisi
+                    </a>
+                </li>
             @endif
             <li>
                 <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" class="hidden">

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Api\BiteShipController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
@@ -82,3 +83,13 @@ Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admi
 
 Route::post('/admin/orders/update-status/{id}', [AdminOrderController::class, 'updateStatus'])->name('admin.pesanan.updateStatus');
 
+Route::get('/admin/ekspedisi', [AdminOrderController::class, 'getMetodePengiriman'])
+    ->name('admin.get-metode-pengiriman')->middleware(['auth:admin', 'role:logistik']);
+
+Route::get('/admin/ekspedisi/create', [AdminOrderController::class, 'create'])
+    ->name('admin.ekspedisi.create')
+    ->middleware(['auth:admin', 'role:logistik']);
+
+Route::post('/admin/ekspedisi/store', [AdminOrderController::class, 'store'])
+    ->name('admin.ekspedisi.store')
+    ->middleware(['auth:admin', 'role:logistik']);

@@ -34,7 +34,7 @@ class AuthController extends Controller
             $roleName = $user->role->nama ?? null;
 
             return match ($roleName) {
-                'logistik' => redirect()->route('admin.dashboard'),
+                'logistik' => redirect()->route('admin.orders', ['type' => 'all']),
                 'billing' => redirect()->route('billing.dashboard'),
                 default => abort(403, 'Role tidak dikenali.'),
             };

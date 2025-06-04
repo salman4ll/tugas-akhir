@@ -145,7 +145,6 @@ class OrderController extends Controller
                         ]
                     ]);
 
-                    dd($response->json());
                 if ($response->failed()) {
                     throw new \Exception('Gagal mengambil data ongkir dari Biteship.');
                 }
@@ -363,16 +362,16 @@ class OrderController extends Controller
             $completedTracking = $order->trackingOrder->firstWhere('status', 'completed');
 
             if ($completedTracking) {
-                $waktuPengirimanSampai = $completedTracking->created_at; // atau updated_at tergantung field-nya
+                $waktuPengirimanSampai = $completedTracking->created_at;
             }
         }
 
         $hargaPerangkat = $order->perangkat->harga_perangkat;
         $hargaLayanan = $order->layanan->harga_layanan;
         $shippingCost = $order->biaya_pengiriman;
-        $totalBiaya = $hargaPerangkat + $hargaLayanan + $shippingCost;
-        $ppn = $totalBiaya * 0.11;
-        $pph = 0;
+        $totalBiaya = $order->hitungTotalBiaya();
+        $ppn = $order->hitungPPN();
+        $pph = $order->hitungPPH($status_perusahaan);
         $totalPembayaran = $totalBiaya + $ppn;
         $ringkasanTotalPembayaran = 0;
 

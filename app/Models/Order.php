@@ -85,4 +85,22 @@ class Order extends Model
     {
         return $this->hasMany(TrackingOrder::class, 'order_id');
     }
+
+    public function hitungTotalBiaya()
+    {
+        return $this->perangkat->harga_perangkat + $this->layanan->harga_layanan + $this->biaya_pengiriman;
+    }
+
+    public function hitungPPN()
+    {
+        return $this->hitungTotalBiaya() * 0.11;
+    }
+
+    public function hitungPPH($status_perusahaan)
+    {
+        if ($status_perusahaan == 1 || $status_perusahaan == 3) {
+            return ($this->layanan->harga_layanan + $this->biaya_pengiriman) * 0.02;
+        }
+        return 0;
+    }
 }

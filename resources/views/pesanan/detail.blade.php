@@ -541,7 +541,8 @@
                             entry.innerHTML = `
                                 <div class="flex flex-col items-center">
                                     <div class="w-3 h-3 rounded-full ${isLatest ? 'bg-green-500' : 'bg-purple-500'}"></div>
-                                    ${index !== 0 ? '<div class="w-px bg-gray-300 h-full mt-1"></div>' : ''}
+                                    ${index !== 0 ? '<div class="w-px bg-gray-300 flex-1 mt-1 mb-1"></div>' : '<div class="h-2"></div>'}
+
                                 </div>
                                 <div class="text-sm">
                                     <p class="font-medium text-gray-800">${formattedDate} ${formattedTime}</p>
