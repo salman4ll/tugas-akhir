@@ -545,7 +545,7 @@
             }
         </script>
         <script src="{{ asset('assets/js/order/address.js') }}"></script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAZJEfXn4JomPN0kP0TIlqL1Qr8AniNKIY&libraries=places">
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBiQ1_zaLft14YL7XWO5nPE32V8hMca5_g&libraries=places">
         </script>
     @endpush
 @endsection
