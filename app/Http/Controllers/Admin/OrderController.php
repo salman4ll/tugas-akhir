@@ -214,7 +214,7 @@ class OrderController extends Controller
             ])->render();
 
             $pdf = Pdf::loadHTML($html)
-                ->setPaper([0, 0, 400, 830], 'portrait')
+                ->setPaper([0, 0, 400, 860], 'portrait')
                 ->setOptions([
                     'dpi' => 96,
                     'defaultFont' => 'Arial',
