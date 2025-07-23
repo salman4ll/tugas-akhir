@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\BiteShipController;
 use App\Http\Controllers\AuthController;
@@ -70,9 +71,7 @@ Route::get('/user/dashboard', [DashboardController::class, 'index'])
     ->name('user.dashboard')
     ->middleware('auth');
 
-Route::get('admin/dashboard', function () {
-    return view('admin.index');
-})->name('admin.dashboard')->middleware(['auth:admin', 'role:logistik,am']);
+Route::get('admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard')->middleware(['auth:admin', 'role:logistik,am']);
 
 Route::get('admin/orders/{type}', [AdminOrderController::class, 'index'])->name('admin.orders')->middleware(['auth:admin', 'role:logistik']);
 
@@ -93,3 +92,10 @@ Route::get('/admin/ekspedisi/create', [AdminOrderController::class, 'create'])
 Route::post('/admin/ekspedisi/store', [AdminOrderController::class, 'store'])
     ->name('admin.ekspedisi.store')
     ->middleware(['auth:admin', 'role:logistik']);
+
+Route::get('/admin/ekspedisi/edit/{id}', function ($id) {
+    return view('components.label_shipping', ['id' => $id]);
+})->name('admin.ekspedisi.edit')->middleware(['auth:admin', 'role:logistik']);
+
+Route::get('/{orderId}/download-label', [AdminOrderController::class, 'downloadLabelShipping'])
+    ->name('downloadLabel')->middleware(['auth:admin', 'role:logistik']);

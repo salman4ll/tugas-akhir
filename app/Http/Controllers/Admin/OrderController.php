@@ -7,20 +7,64 @@ use App\Models\MetodePengiriman;
 use App\Models\Order;
 use App\Models\RiwayatStatusOrder;
 use App\Models\ShippingMethod;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
-    public function index($type = null)
+    public function index(Request $request, $type = null)
     {
         $user = auth('admin')->user()->role->nama;
-        $query = Order::with(['customer', 'customer.address', 'layanan', 'perangkat', 'perangkat.produk', 'riwayatStatusOrder.status', 'alamatCustomer', 'cpCustomer', 'statusTerakhir'])
-            ->orderBy('created_at', 'desc');
+        $query = Order::with(['customer', 'customer.address', 'layanan', 'perangkat', 'perangkat.produk', 'riwayatStatusOrder.status', 'alamatCustomer', 'cpCustomer', 'statusTerakhir']);
 
+        // Filter by type
         if ($type && $type !== 'all' && in_array($type, ['ambil_ditempat', 'ekspedisi'])) {
             $query->where('jenis_pengiriman', $type);
+        }
+
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('unique_order', 'like', "%{$search}%")
+                    ->orWhere('total_harga', 'like', "%{$search}%")
+                    ->orWhere('order_date', 'like', "%{$search}%")
+                    ->orWhere('jenis_pengiriman', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($customerQuery) use ($search) {
+                        $customerQuery->where('nama_perusahaan', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('statusTerakhir.status', function ($statusQuery) use ($search) {
+                        $statusQuery->where('nama', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // Sorting functionality
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortDirection = $request->get('sort_direction', 'desc');
+
+        // Define allowed sort columns
+        $allowedSortColumns = [
+            'created_at',
+            'order_date',
+            'total_harga',
+            'jenis_pengiriman',
+            'unique_order'
+        ];
+
+        if (in_array($sortBy, $allowedSortColumns)) {
+            if ($sortBy === 'customer') {
+                $query->join('customers', 'orders.customer_id', '=', 'customers.id')
+                    ->orderBy('customers.nama_perusahaan', $sortDirection)
+                    ->select('orders.*');
+            } else {
+                $query->orderBy($sortBy, $sortDirection);
+            }
+        } else {
+            $query->orderBy('created_at', 'desc');
         }
 
         $order = $query->paginate(5);
@@ -39,7 +83,8 @@ class OrderController extends Controller
             return $item;
         });
 
-        // dd($order);
+        // Append query parameters to pagination links
+        $order->appends($request->query());
 
         return view('admin.pesanan.index', compact('order'));
     }
@@ -151,5 +196,40 @@ class OrderController extends Controller
         MetodePengiriman::create($request->all());
 
         return redirect()->route('admin.get-metode-pengiriman')->with('success', 'Ekspedisi berhasil ditambahkan');
+    }
+
+    public function downloadLabelShipping($orderId)
+    {
+        try {
+            $dataOrder = Order::with([
+                'customer',
+                'metodePengiriman',
+                'perangkat.produk',
+                'layanan',
+                'alamatCustomer'
+            ])->findOrFail($orderId);
+
+            $html = view('components.label_shipping', [
+                'dataOrder' => $dataOrder
+            ])->render();
+
+            $pdf = Pdf::loadHTML($html)
+                ->setPaper([0, 0, 400, 830], 'portrait')
+                ->setOptions([
+                    'dpi' => 96,
+                    'defaultFont' => 'Arial',
+                    'isHtml5ParserEnabled' => true,
+                    'isRemoteEnabled' => true,
+                    'margin-top' => 0,
+                    'margin-right' => 0,
+                    'margin-bottom' => 0,
+                    'margin-left' => 0,
+                ]);
+
+            return $pdf->download('label-shipping-' . $dataOrder->unique_order . '.pdf');
+        } catch (\Exception $e) {
+            Log::error('Error generating label shipping: ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to generate label'], 500);
+        }
     }
 }

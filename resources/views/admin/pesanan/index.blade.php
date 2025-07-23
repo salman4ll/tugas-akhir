@@ -4,21 +4,66 @@
 
 @section('content')
     <div class="p-4">
+        <!-- Search Bar -->
+        <div class="mb-4">
+            <div class="flex items-center space-x-4">
+                <div class="flex-1">
+                    <input type="text" 
+                           id="searchInput" 
+                           placeholder="Cari berdasarkan customer, tanggal, total, status..." 
+                           value="{{ request('search') }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <button onclick="clearSearch()" 
+                        class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg">
+                    Clear
+                </button>
+            </div>
+        </div>
+
         <div class="overflow-x-auto rounded-lg shadow-md">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
                     <tr>
                         <th class="px-6 py-3 text-left">No</th>
-                        <th class="px-6 py-3 text-left">Customer</th>
-                        <th class="px-6 py-3 text-left">Tanggal</th>
-                        <th class="px-6 py-3 text-left">Total</th>
-                        <th class="px-6 py-3 text-left">Jenis Pengiriman</th>
+                        <th class="px-6 py-3 text-left">
+                            <button onclick="sortTable('customer')" class="flex items-center hover:text-blue-600">
+                                Customer
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                </svg>
+                            </button>
+                        </th>
+                        <th class="px-6 py-3 text-left">
+                            <button onclick="sortTable('order_date')" class="flex items-center hover:text-blue-600">
+                                Tanggal
+                                <svg class="w-4 h-4 ml-1 {{ request('sort_by') == 'order_date' ? (request('sort_direction') == 'asc' ? 'rotate-180' : '') : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                </svg>
+                            </button>
+                        </th>
+                        <th class="px-6 py-3 text-left">
+                            <button onclick="sortTable('total_harga')" class="flex items-center hover:text-blue-600">
+                                Total
+                                <svg class="w-4 h-4 ml-1 {{ request('sort_by') == 'total_harga' ? (request('sort_direction') == 'asc' ? 'rotate-180' : '') : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                </svg>
+                            </button>
+                        </th>
+                        <th class="px-6 py-3 text-left">
+                            <button onclick="sortTable('jenis_pengiriman')" class="flex items-center hover:text-blue-600">
+                                Jenis Pengiriman
+                                <svg class="w-4 h-4 ml-1 {{ request('sort_by') == 'jenis_pengiriman' ? (request('sort_direction') == 'asc' ? 'rotate-180' : '') : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                </svg>
+                            </button>
+                        </th>
                         <th class="px-6 py-3 text-left">Status</th>
                         <th class="px-6 py-3 text-left">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach ($order as $item)
+                    @forelse ($order as $item)
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4">{{ ($order->currentPage() - 1) * $order->perPage() + $loop->iteration }}
                             </td>
@@ -48,11 +93,9 @@
                                         Aksi
                                     </button>
 
-                                    <div
-                                        class="dropdown-menu hidden absolute z-10 mt-2 w-32 bg-white border border-gray-200 rounded shadow-md">
+                                    <div class="dropdown-menu hidden absolute z-10 mt-2 w-32 bg-white border border-gray-200 rounded shadow-md">
                                         <button onclick="showOrderDetail('{{ $item->unique_order }}')"
                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Detail</button>
-
 
                                         @php
                                             $statusNow = $item->statusTerakhir->status->status_code ?? null;
@@ -87,12 +130,23 @@
                                     </div>
                                 </div>
                             </td>
-
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                @if(request('search'))
+                                    Tidak ada data yang sesuai dengan pencarian "{{ request('search') }}"
+                                @else
+                                    Tidak ada data pesanan
+                                @endif
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
+
+        <!-- Modal Detail Order -->
         <div id="orderDetailModal"
             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
             <div class="bg-white w-11/12 max-w-2xl p-6 rounded shadow-lg relative">
@@ -106,31 +160,83 @@
         </div>
 
         <!-- Pagination -->
-        <div class="mt-6 flex justify-between items-center">
-            {{-- Tombol Sebelumnya --}}
-            @if ($order->onFirstPage())
-                <span class="px-4 py-2 text-gray-400 cursor-not-allowed">« Sebelumnya</span>
-            @else
-                <a href="{{ $order->previousPageUrl() }}"
-                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded">« Sebelumnya</a>
-            @endif
+        @if($order->hasPages())
+            <div class="mt-6 flex justify-between items-center">
+                {{-- Tombol Sebelumnya --}}
+                @if ($order->onFirstPage())
+                    <span class="px-4 py-2 text-gray-400 cursor-not-allowed">« Sebelumnya</span>
+                @else
+                    <a href="{{ $order->previousPageUrl() }}"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded">« Sebelumnya</a>
+                @endif
 
-            {{-- Info Halaman --}}
-            <span class="text-sm text-gray-600">
-                Halaman {{ $order->currentPage() }} dari {{ $order->lastPage() }}
-            </span>
+                {{-- Info Halaman --}}
+                <span class="text-sm text-gray-600">
+                    Halaman {{ $order->currentPage() }} dari {{ $order->lastPage() }}
+                    @if($order->total() > 0)
+                        ({{ $order->total() }} total data)
+                    @endif
+                </span>
 
-            {{-- Tombol Selanjutnya --}}
-            @if ($order->hasMorePages())
-                <a href="{{ $order->nextPageUrl() }}"
-                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded">Selanjutnya »</a>
-            @else
-                <span class="px-4 py-2 text-gray-400 cursor-not-allowed">Selanjutnya »</span>
-            @endif
-        </div>
-
+                {{-- Tombol Selanjutnya --}}
+                @if ($order->hasMorePages())
+                    <a href="{{ $order->nextPageUrl() }}"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded">Selanjutnya »</a>
+                @else
+                    <span class="px-4 py-2 text-gray-400 cursor-not-allowed">Selanjutnya »</span>
+                @endif
+            </div>
+        @endif
     </div>
+
+    <!-- JavaScript -->
     <script>
+        let debounceTimer;
+        
+        // Search with debounce
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                performSearch(e.target.value);
+            }, 500); // 500ms delay
+        });
+
+        function performSearch(searchTerm) {
+            const url = new URL(window.location);
+            if (searchTerm.trim() === '') {
+                url.searchParams.delete('search');
+            } else {
+                url.searchParams.set('search', searchTerm);
+            }
+            url.searchParams.delete('page'); // Reset to first page
+            window.location = url;
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            const url = new URL(window.location);
+            url.searchParams.delete('search');
+            url.searchParams.delete('page');
+            window.location = url;
+        }
+
+        function sortTable(column) {
+            const url = new URL(window.location);
+            const currentSort = url.searchParams.get('sort_by');
+            const currentDirection = url.searchParams.get('sort_direction');
+            
+            let newDirection = 'asc';
+            if (currentSort === column && currentDirection === 'asc') {
+                newDirection = 'desc';
+            }
+            
+            url.searchParams.set('sort_by', column);
+            url.searchParams.set('sort_direction', newDirection);
+            url.searchParams.delete('page'); // Reset to first page
+            
+            window.location = url;
+        }
+
         function toggleDropdown(button) {
             const dropdown = button.nextElementSibling;
             dropdown.classList.toggle('hidden');
@@ -145,9 +251,7 @@
                 document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.add('hidden'));
             }
         });
-    </script>
 
-    <script>
         const token = "{{ session('auth_token') }}"
 
         function createShipping(orderId) {
@@ -170,22 +274,18 @@
                 })
                 .then(data => {
                     console.log('Shipping created:', data);
-                    // Refresh halaman
                     location.reload();
                 })
                 .catch(error => {
                     alert('Terjadi kesalahan: ' + error.message);
                 });
         }
-    </script>
 
-    <script>
         function showOrderDetail(orderId) {
             const modal = document.getElementById('orderDetailModal');
             const content = document.getElementById('orderDetailContent');
             const token = "{{ session('auth_token') }}"
 
-            // Tampilkan loading
             content.innerHTML = '<p class="text-gray-500">Loading...</p>';
             modal.classList.remove('hidden');
 
@@ -336,6 +436,5 @@
             document.getElementById('orderDetailModal').classList.add('hidden');
         }
     </script>
-
 
 @endsection

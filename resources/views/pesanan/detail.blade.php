@@ -5,8 +5,8 @@
 @section('content')
     <div class="bg-gray-100">
         <div class="mx-auto max-w-7xl px-8 py-10 min-h-screen text-gray-800">
-            <div class="grid grid-cols-12 gap-[100px]">
-                <div class="col col-span-4">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-[100px]">
+                <div class="col md:col-span-4">
                     <div class="flex flex-col gap-8">
                         <div class="bg-gray-200 p-6 rounded-xl shadow-xl">
                             <img src="{{ asset('assets/images/' . $order->perangkat->produk->image) }}"
@@ -21,7 +21,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-span-8">
+                <div class="col md:col-span-8">
                     <div class="flex gap-5 justify-around items-center text-center">
                         <button id="btnStatus" onclick="showStatusContent()"
                             class="py-3 border-b-purple-600 border-b-2 text-purple-600 font-semibold w-full">Status
@@ -467,7 +467,7 @@
             }
         </script>
         <script
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAZJEfXn4JomPN0kP0TIlqL1Qr8AniNKIY&libraries=places&callback=initMap"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBiQ1_zaLft14YL7XWO5nPE32V8hMca5_g&libraries=places&callback=initMap"
             async defer></script>
         </script>
         <script>
