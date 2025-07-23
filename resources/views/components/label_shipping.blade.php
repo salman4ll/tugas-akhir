@@ -105,7 +105,7 @@
         <span class="label">Jenis Barang:</span>
         <p>
             1x {{ $dataOrder->perangkat->produk->nama_produk ?? 'Produk' }} -
-            {{ $dataOrder->perangkat->nama ?? 'Perangkat' }} - {{ $dataOrder->layanan->nama_layanan ?? 'Layanan' }}
+            {{ $dataOrder->perangkat->nama_perangkat ?? 'Perangkat' }} - {{ $dataOrder->layanan->nama_layanan ?? 'Layanan' }}
         </p>
     </div>
 
