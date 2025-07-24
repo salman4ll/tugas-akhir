@@ -143,6 +143,13 @@
                                             </button>
                                         @endif
 
+                                        @if ($statusId == 1 || $statusId == 2)
+                                            <button type="button" onclick="showCancelModal('{{ $item->unique_order }}')"
+                                                class="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-100">
+                                                Cancel Order
+                                            </button>
+                                        @endif
+
                                         @if ($statusNow === 'new_order')
                                             <form method="POST"
                                                 action="{{ route('admin.pesanan.updateStatus', $item->unique_order) }}">
@@ -209,6 +216,49 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        <div id="cancelOrderModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Batalkan Pesanan</h3>
+                            <button type="button" onclick="closeCancelModal()"
+                                class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <form id="cancelOrderForm" method="POST">
+                            @csrf
+                            <div class="mb-4">
+                                <label for="keterangan" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Keterangan Pembatalan <span class="text-red-500">*</span>
+                                </label>
+                                <textarea id="keterangan" name="keterangan" rows="4"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Masukkan alasan pembatalan pesanan..." required></textarea>
+                                <div id="keteranganError" class="text-red-500 text-sm mt-1 hidden"></div>
+                            </div>
+
+                            <div class="flex justify-end space-x-3">
+                                <button type="button" onclick="closeCancelModal()"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500">
+                                    Batal
+                                </button>
+                                <button type="submit"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                                    Cancel Order
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Modal Detail Order -->
@@ -589,6 +639,128 @@
         function closeModal() {
             document.getElementById('orderDetailModal').classList.add('hidden');
         }
+    </script>
+
+    <script>
+        function showCancelModal(orderId) {
+            const modal = document.getElementById('cancelOrderModal');
+            const form = document.getElementById('cancelOrderForm');
+            const keteranganInput = document.getElementById('keterangan');
+            const errorDiv = document.getElementById('keteranganError');
+
+            // Set form action
+            form.action = `/admin/orders/cancel/${orderId}`;
+
+            // Clear previous values and errors
+            keteranganInput.value = '';
+            errorDiv.classList.add('hidden');
+            errorDiv.textContent = '';
+
+            // Show modal
+            modal.classList.remove('hidden');
+
+            // Focus on textarea
+            setTimeout(() => {
+                keteranganInput.focus();
+            }, 100);
+        }
+
+        function closeCancelModal() {
+            const modal = document.getElementById('cancelOrderModal');
+            modal.classList.add('hidden');
+        }
+
+        // Handle form submission
+        document.getElementById('cancelOrderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const keteranganInput = document.getElementById('keterangan');
+            const errorDiv = document.getElementById('keteranganError');
+            const submitBtn = this.querySelector('button[type="submit"]');
+
+            // Reset error state
+            errorDiv.classList.add('hidden');
+            errorDiv.textContent = '';
+
+            // Validate keterangan
+            if (!keteranganInput.value.trim()) {
+                errorDiv.textContent = 'Keterangan harus diisi';
+                errorDiv.classList.remove('hidden');
+                keteranganInput.focus();
+                return;
+            }
+
+            if (keteranganInput.value.trim().length > 255) {
+                errorDiv.textContent = 'Keterangan maksimal 255 karakter';
+                errorDiv.classList.remove('hidden');
+                keteranganInput.focus();
+                return;
+            }
+
+            // Show loading state
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+
+            // Create FormData
+            const formData = new FormData(this);
+
+            // Submit form via fetch
+            fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message (you can customize this)
+                        alert('Pesanan berhasil dibatalkan');
+
+                        // Close modal
+                        closeCancelModal();
+
+                        // Reload page or update UI
+                        window.location.reload();
+                    } else {
+                        // Handle validation errors
+                        if (data.errors && data.errors.keterangan) {
+                            errorDiv.textContent = data.errors.keterangan[0];
+                            errorDiv.classList.remove('hidden');
+                        } else {
+                            alert(data.message || 'Terjadi kesalahan');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat memproses permintaan');
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                });
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('cancelOrderModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCancelModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('cancelOrderModal');
+                if (!modal.classList.contains('hidden')) {
+                    closeCancelModal();
+                }
+            }
+        });
     </script>
 
 @endsection

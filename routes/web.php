@@ -92,6 +92,7 @@ Route::prefix('admin')->group(function () {
     Route::middleware(['auth:admin', 'role:logistik'])->group(function () {
         Route::get('/orders/{type}', [AdminOrderController::class, 'index'])->name('admin.orders');
         Route::post('/orders/update-status/{id}', [AdminOrderController::class, 'updateStatus'])->name('admin.pesanan.updateStatus');
+        Route::post('/orders/cancel/{id}', [AdminOrderController::class, 'canceledOrder'])->name('admin.order.cancel');
 
         // Ekspedisi Management
         Route::get('/ekspedisi', [AdminOrderController::class, 'getMetodePengiriman'])->name('admin.get-metode-pengiriman');

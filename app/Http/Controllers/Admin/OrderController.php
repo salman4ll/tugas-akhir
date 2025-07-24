@@ -176,7 +176,6 @@ class OrderController extends Controller
                 'status_id' => 11,
                 'keterangan' => 'Pesanan sudah diambil',
             ]);
-        } else if ($status === 'packed_order') {
         } else {
             return redirect()->back()->withErrors(['status' => 'Transisi status tidak valid']);
         }
@@ -186,6 +185,54 @@ class OrderController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui');
+    }
+
+    public function canceledOrder(Request $request, $id)
+    {
+        $request->validate([
+            'keterangan' => 'required|string|max:255',
+        ]);
+
+        $order = Order::with(['statusTerakhir'])->where('unique_order', $id)->first();
+
+        if (!$order) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pesanan tidak ditemukan'
+                ], 404);
+            }
+            return redirect()->back()->withErrors(['order' => 'Pesanan tidak ditemukan']);
+        }
+
+        if ($order->statusTerakhir->status->nama === 'canceled') {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pesanan sudah dibatalkan'
+                ], 400);
+            }
+            return redirect()->back()->with('info', 'Pesanan sudah dibatalkan');
+        }
+
+        $riwayatStatus = RiwayatStatusOrder::create([
+            'order_id' => $order->id,
+            'status_id' => 9,
+            'keterangan' => $request->input('keterangan'),
+        ]);
+
+        $order->update([
+            'riwayat_status_order_id' => $riwayatStatus->id,
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesanan berhasil dibatalkan'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Pesanan berhasil dibatalkan');
     }
 
 
