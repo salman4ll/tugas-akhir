@@ -100,7 +100,7 @@
                                             </h4>
                                             @if ($activeStep >= 2)
                                                 @if($activeStep == 2)
-                                                    <span>
+                                                    <span class="text-gray-600">
                                                         {{ $order->statusTerakhir?->status?->nama ?? 'Status Tidak Diketahui' }}
                                                     </span>
                                                 @endif
@@ -114,8 +114,7 @@
                                                     @elseif ($order->statusTerakhir?->status?->id == 11)
                                                         <p class="text-gray-600 mb-2 text-sm">Pesanan sudah Anda ambil. Silahkan melakukan konfirmasi</p>
                                                     @endif
-                                                @else
-                                                    {{-- Default ekspedisi view --}}
+                                                @elseif ($order->jenis_pengiriman === 'ekspedisi' && $order->trackingOrder->isNotEmpty())
                                                     <small class="text-gray-500">Dikirim pada
                                                         {{ optional($order->trackingOrder->first())->created_at ? formatTanggal($order->trackingOrder->first()->created_at) : '-' }}</small>
                                                     Paling Lambat tiba

@@ -312,6 +312,7 @@ class OrderController extends Controller
             'diproses' => [2, 3, 4],
             'dikirim' => [5, 6, 7],
             'selesai' => [8, 9],
+            'siap_diambil' => [10, 11],
         ];
 
         $query = Order::with([

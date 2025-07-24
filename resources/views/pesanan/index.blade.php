@@ -41,6 +41,11 @@
                     Dalam Perjalanan
                 </a>
                 <span>|</span>
+                <a href="{{ route('user.pesanan', ['status' => 'siap_diambil', 'sort' => request('sort')]) }}"
+                    class="{{ $statusFilter == 'siap_diambil' ? 'text-purple-600 font-semibold border-b-2 border-purple-600' : '' }}">
+                    Siap Diambil
+                </a>
+                <span>|</span>
                 <a href="{{ route('user.pesanan', ['status' => 'selesai', 'sort' => request('sort')]) }}"
                     class="{{ $statusFilter == 'selesai' ? 'text-purple-600 font-semibold border-b-2 border-purple-600' : '' }}">
                     Pesanan Selesai

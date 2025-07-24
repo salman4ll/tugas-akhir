@@ -6,16 +6,35 @@
     <div class="p-4">
         <!-- Search Bar -->
         <div class="mb-4">
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-4 mb-4">
+                {{-- Search Input --}}
                 <div class="flex-1">
-                    <input type="text" id="searchInput" placeholder="Cari berdasarkan customer, tanggal, total, status..."
+                    <input type="text" name="search" placeholder="Cari berdasarkan customer, tanggal, total, status..."
                         value="{{ request('search') }}"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
+
+                {{-- Status Filter Dropdown --}}
+                <form method="GET" action="{{ url()->current() }}">
+                    <select name="status_group" onchange="this.form.submit()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Semua Status</option>
+                        <option value="belum_dibayar" {{ request('status_group') == 'belum_dibayar' ? 'selected' : '' }}>
+                            Belum Dibayar</option>
+                        <option value="diproses" {{ request('status_group') == 'diproses' ? 'selected' : '' }}>Diproses
+                        </option>
+                        <option value="dikirim" {{ request('status_group') == 'dikirim' ? 'selected' : '' }}>Dikirim
+                        </option>
+                        <option value="selesai" {{ request('status_group') == 'selesai' ? 'selected' : '' }}>Selesai
+                        </option>
+                    </select>
+                </form>
+
                 <button onclick="clearSearch()" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg">
                     Clear
                 </button>
             </div>
+
         </div>
 
         <div class="overflow-x-auto rounded-lg shadow-md">
@@ -62,7 +81,16 @@
                                 </svg>
                             </button>
                         </th>
-                        <th class="px-6 py-3 text-left">Status</th>
+                        <th class="px-6 py-3 text-left">
+                            <button onclick="sortTable('status')" class="flex items-center hover:text-blue-600">
+                                Status
+                                <svg class="w-4 h-4 ml-1 {{ request('sort_by') == 'status' ? (request('sort_direction') == 'asc' ? 'rotate-180' : '') : '' }}"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                </svg>
+                            </button>
+                        </th>
                         <th class="px-6 py-3 text-left">Aksi</th>
                     </tr>
                 </thead>
@@ -104,7 +132,16 @@
 
                                         @php
                                             $statusNow = $item->statusTerakhir->status->status_code ?? null;
+                                            $statusId = $item->statusTerakhir->status->id ?? null;
                                         @endphp
+
+                                        @if ($statusId >= 5 && $statusId <= 9 && $item->jenis_pengiriman === 'ekspedisi')
+                                            <button
+                                                class="trackOrderBtn block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                data-order-id="{{ $item->unique_order }}">
+                                                Tracking
+                                            </button>
+                                        @endif
 
                                         @if ($statusNow === 'new_order')
                                             <form method="POST"
@@ -216,6 +253,95 @@
             </div>
         @endif
     </div>
+
+    <div id="trackingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md relative">
+            <h2 class="text-xl font-semibold mb-4">Tracking Pesanan</h2>
+            <div id="trackingContent" class="flex flex-col-reverse gap-4 h-full overflow-y-auto px-2">
+                <!-- Tracking data -->
+            </div>
+
+            <button id="closeModal" class="absolute top-2 right-2 text-gray-500 hover:text-black">&times;</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('trackingModal');
+            const closeModal = document.getElementById('closeModal');
+            const content = document.getElementById('trackingContent');
+
+            // Delegasi event untuk semua tombol tracking
+            document.querySelectorAll('.trackOrderBtn').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const orderId = button.getAttribute('data-order-id');
+
+                    try {
+                        const response = await fetch('/api/get-tracking', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                order_id: orderId
+                            })
+                        });
+
+                        const result = await response.json();
+                        content.innerHTML = '';
+
+                        if (result.status === 'success' && result.data.length) {
+                            result.data.forEach((item, index) => {
+                                const entry = document.createElement('div');
+                                entry.classList.add('flex', 'items-start', 'gap-4',
+                                    'relative');
+
+                                const isLatest = index === result.data.length - 1;
+                                const date = new Date(item.created_at);
+                                const formattedDate = date.toLocaleDateString('id-ID', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric'
+                                });
+                                const formattedTime = date.toLocaleTimeString('id-ID', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
+                                });
+
+                                entry.innerHTML = `
+                                <div class="flex flex-col items-center">
+                                    <div class="w-3 h-3 rounded-full ${isLatest ? 'bg-green-500' : 'bg-purple-500'}"></div>
+                                    ${index !== 0 ? '<div class="w-px bg-gray-300 flex-1 mt-1 mb-1"></div>' : '<div class="h-2"></div>'}
+                                </div>
+                                <div class="text-sm">
+                                    <p class="font-medium text-gray-800">${formattedDate} ${formattedTime}</p>
+                                    <p class="text-gray-600">${item.note}</p>
+                                </div>
+                            `;
+                                content.appendChild(entry);
+                            });
+                        } else {
+                            content.innerHTML =
+                                '<p class="text-gray-600">Tracking data tidak ditemukan.</p>';
+                        }
+
+                        modal.classList.remove('hidden');
+                    } catch (error) {
+                        content.innerHTML =
+                            '<p class="text-red-600">Terjadi kesalahan saat mengambil data.</p>';
+                        modal.classList.remove('hidden');
+                    }
+                });
+            });
+
+            closeModal.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+        });
+    </script>
+
 
     <!-- JavaScript -->
     <script>

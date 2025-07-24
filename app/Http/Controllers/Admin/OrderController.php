@@ -18,11 +18,38 @@ class OrderController extends Controller
     public function index(Request $request, $type = null)
     {
         $user = auth('admin')->user()->role->nama;
-        $query = Order::with(['customer', 'customer.address', 'layanan', 'perangkat', 'perangkat.produk', 'riwayatStatusOrder.status', 'alamatCustomer', 'cpCustomer', 'statusTerakhir']);
 
-        // Filter by type
+        // Status groups
+        $statusGroups = [
+            'belum_dibayar' => [1],
+            'diproses' => [2, 3, 4],
+            'dikirim' => [5, 6, 7, 10, 11],
+            'selesai' => [8, 9],
+        ];
+
+        $query = Order::with([
+            'customer',
+            'customer.address',
+            'layanan',
+            'perangkat',
+            'perangkat.produk',
+            'riwayatStatusOrder.status',
+            'alamatCustomer',
+            'cpCustomer',
+            'statusTerakhir'
+        ]);
+
+        // Filter jenis pengiriman (ambil_ditempat / ekspedisi)
         if ($type && $type !== 'all' && in_array($type, ['ambil_ditempat', 'ekspedisi'])) {
             $query->where('jenis_pengiriman', $type);
+        }
+
+        // Filter status group
+        if ($request->has('status_group') && isset($statusGroups[$request->status_group])) {
+            $statusIds = $statusGroups[$request->status_group];
+            $query->whereHas('statusTerakhir', function ($q) use ($statusIds) {
+                $q->whereIn('status_id', $statusIds);
+            });
         }
 
         // Search functionality
@@ -43,23 +70,34 @@ class OrderController extends Controller
         }
 
         // Sorting functionality
-        $sortBy = $request->get('sort_by', 'created_at');
+        $sortByInput = $request->get('sort_by', 'created_at');
         $sortDirection = $request->get('sort_direction', 'desc');
 
-        // Define allowed sort columns
-        $allowedSortColumns = [
-            'created_at',
-            'order_date',
-            'total_harga',
-            'jenis_pengiriman',
-            'unique_order'
+        $sortMap = [
+            'created_at'        => 'created_at',
+            'order_date'        => 'order_date',
+            'total_harga'       => 'total_harga',
+            'jenis_pengiriman'  => 'jenis_pengiriman',
+            'unique_order'      => 'unique_order',
+            'status'            => 'statusTerakhir.status.nama',
+            'customer'          => 'customer.nama_perusahaan',
         ];
 
-        if (in_array($sortBy, $allowedSortColumns)) {
-            if ($sortBy === 'customer') {
+        $sortBy = $sortMap[$sortByInput] ?? 'created_at';
+
+        if (array_key_exists($sortByInput, $sortMap)) {
+            if ($sortByInput === 'customer') {
                 $query->join('customers', 'orders.customer_id', '=', 'customers.id')
                     ->orderBy('customers.nama_perusahaan', $sortDirection)
                     ->select('orders.*');
+            } elseif ($sortByInput === 'status') {
+                $query->leftJoin('tbl_riwayat_status_order as rso', function ($join) {
+                    $join->on('tbl_order.id', '=', 'rso.order_id')
+                        ->whereRaw('rso.id IN (SELECT MAX(id) FROM tbl_riwayat_status_order GROUP BY order_id)');
+                })
+                    ->leftJoin('tbl_status as so', 'rso.status_id', '=', 'so.id')
+                    ->orderBy('so.nama', $sortDirection)
+                    ->select('tbl_order.*');
             } else {
                 $query->orderBy($sortBy, $sortDirection);
             }
@@ -67,8 +105,10 @@ class OrderController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
+        // Pagination
         $order = $query->paginate(5);
 
+        // Clean up data before send to view
         $order->getCollection()->transform(function ($item) {
             unset(
                 $item->id,
@@ -83,11 +123,13 @@ class OrderController extends Controller
             return $item;
         });
 
-        // Append query parameters to pagination links
+        // Append query string to pagination links
         $order->appends($request->query());
 
         return view('admin.pesanan.index', compact('order'));
     }
+
+
 
     public function updateStatus(Request $request, $id)
     {
