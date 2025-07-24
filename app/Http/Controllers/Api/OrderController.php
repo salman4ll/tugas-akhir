@@ -137,7 +137,7 @@ class OrderController extends Controller
         try {
             $order = Order::with('statusTerakhir')->where('unique_order', $request->order_id)->firstOrFail();
 
-            if ($order->statusTerakhir->status_id != 7) {
+            if ($order->statusTerakhir->status_id != 7 && $order->statusTerakhir->status_id != 11) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Pesanan tidak dalam status yang dapat dikonfirmasi.',

@@ -8,14 +8,11 @@
         <div class="mb-4">
             <div class="flex items-center space-x-4">
                 <div class="flex-1">
-                    <input type="text" 
-                           id="searchInput" 
-                           placeholder="Cari berdasarkan customer, tanggal, total, status..." 
-                           value="{{ request('search') }}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input type="text" id="searchInput" placeholder="Cari berdasarkan customer, tanggal, total, status..."
+                        value="{{ request('search') }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
-                <button onclick="clearSearch()" 
-                        class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg">
+                <button onclick="clearSearch()" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg">
                     Clear
                 </button>
             </div>
@@ -30,31 +27,38 @@
                             <button onclick="sortTable('customer')" class="flex items-center hover:text-blue-600">
                                 Customer
                                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                                 </svg>
                             </button>
                         </th>
                         <th class="px-6 py-3 text-left">
                             <button onclick="sortTable('order_date')" class="flex items-center hover:text-blue-600">
                                 Tanggal
-                                <svg class="w-4 h-4 ml-1 {{ request('sort_by') == 'order_date' ? (request('sort_direction') == 'asc' ? 'rotate-180' : '') : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                <svg class="w-4 h-4 ml-1 {{ request('sort_by') == 'order_date' ? (request('sort_direction') == 'asc' ? 'rotate-180' : '') : '' }}"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                                 </svg>
                             </button>
                         </th>
                         <th class="px-6 py-3 text-left">
                             <button onclick="sortTable('total_harga')" class="flex items-center hover:text-blue-600">
                                 Total
-                                <svg class="w-4 h-4 ml-1 {{ request('sort_by') == 'total_harga' ? (request('sort_direction') == 'asc' ? 'rotate-180' : '') : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                <svg class="w-4 h-4 ml-1 {{ request('sort_by') == 'total_harga' ? (request('sort_direction') == 'asc' ? 'rotate-180' : '') : '' }}"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                                 </svg>
                             </button>
                         </th>
                         <th class="px-6 py-3 text-left">
                             <button onclick="sortTable('jenis_pengiriman')" class="flex items-center hover:text-blue-600">
                                 Jenis Pengiriman
-                                <svg class="w-4 h-4 ml-1 {{ request('sort_by') == 'jenis_pengiriman' ? (request('sort_direction') == 'asc' ? 'rotate-180' : '') : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                <svg class="w-4 h-4 ml-1 {{ request('sort_by') == 'jenis_pengiriman' ? (request('sort_direction') == 'asc' ? 'rotate-180' : '') : '' }}"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                                 </svg>
                             </button>
                         </th>
@@ -93,7 +97,8 @@
                                         Aksi
                                     </button>
 
-                                    <div class="dropdown-menu hidden absolute z-10 mt-2 w-32 bg-white border border-gray-200 rounded shadow-md">
+                                    <div
+                                        class="dropdown-menu hidden absolute z-10 mt-2 w-32 bg-white border border-gray-200 rounded shadow-md">
                                         <button onclick="showOrderDetail('{{ $item->unique_order }}')"
                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Detail</button>
 
@@ -122,10 +127,33 @@
                                                 </button>
                                             </form>
                                         @elseif ($statusNow === 'packed_order')
-                                            <button type="button" onclick="createShipping('{{ $item->unique_order }}')"
-                                                class="w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-100">
-                                                Pickup
-                                            </button>
+                                            @if ($item->jenis_pengiriman === 'ekspedisi')
+                                                <button type="button"
+                                                    onclick="createShipping('{{ $item->unique_order }}')"
+                                                    class="w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-100">
+                                                    Siap Dikirim
+                                                </button>
+                                            @else
+                                                <form method="POST"
+                                                    action="{{ route('admin.pesanan.updateStatus', $item->unique_order) }}">
+                                                    @csrf
+                                                    <input type="hidden" name="status" value="packed_order">
+                                                    <button type="submit"
+                                                        class="w-full text-left px-4 py-2 text-sm text-purple-700 hover:bg-purple-100">
+                                                        Siap Diambil
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @elseif ($statusNow === 'ready_for_pickup')
+                                            <form method="POST"
+                                                action="{{ route('admin.pesanan.updateStatus', $item->unique_order) }}">
+                                                @csrf
+                                                <input type="hidden" name="status" value="ready_for_pickup">
+                                                <button type="submit"
+                                                    class="w-full text-left px-4 py-2 text-sm text-blue-700 hover:bg-blue-100">
+                                                    Sudah Diambil
+                                                </button>
+                                            </form>
                                         @endif
                                     </div>
                                 </div>
@@ -134,7 +162,7 @@
                     @empty
                         <tr>
                             <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                                @if(request('search'))
+                                @if (request('search'))
                                     Tidak ada data yang sesuai dengan pencarian "{{ request('search') }}"
                                 @else
                                     Tidak ada data pesanan
@@ -160,7 +188,7 @@
         </div>
 
         <!-- Pagination -->
-        @if($order->hasPages())
+        @if ($order->hasPages())
             <div class="mt-6 flex justify-between items-center">
                 {{-- Tombol Sebelumnya --}}
                 @if ($order->onFirstPage())
@@ -173,7 +201,7 @@
                 {{-- Info Halaman --}}
                 <span class="text-sm text-gray-600">
                     Halaman {{ $order->currentPage() }} dari {{ $order->lastPage() }}
-                    @if($order->total() > 0)
+                    @if ($order->total() > 0)
                         ({{ $order->total() }} total data)
                     @endif
                 </span>
@@ -192,7 +220,7 @@
     <!-- JavaScript -->
     <script>
         let debounceTimer;
-        
+
         // Search with debounce
         document.getElementById('searchInput').addEventListener('input', function(e) {
             clearTimeout(debounceTimer);
@@ -224,16 +252,16 @@
             const url = new URL(window.location);
             const currentSort = url.searchParams.get('sort_by');
             const currentDirection = url.searchParams.get('sort_direction');
-            
+
             let newDirection = 'asc';
             if (currentSort === column && currentDirection === 'asc') {
                 newDirection = 'desc';
             }
-            
+
             url.searchParams.set('sort_by', column);
             url.searchParams.set('sort_direction', newDirection);
             url.searchParams.delete('page'); // Reset to first page
-            
+
             window.location = url;
         }
 

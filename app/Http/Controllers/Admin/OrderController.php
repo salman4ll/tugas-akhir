@@ -94,7 +94,7 @@ class OrderController extends Controller
         $order = Order::with(['statusTerakhir'])->where('unique_order', $id)->first();
         $status = $request->input('status');
 
-        if (!$status || !in_array($status, ['new_order', 'process_order', 'packed_order'])) {
+        if (!$status || !in_array($status, ['new_order', 'process_order', 'packed_order', 'ready_for_pickup'])) {
             return redirect()->back()->withErrors(['status' => 'Status tidak valid']);
         }
 
@@ -112,14 +112,29 @@ class OrderController extends Controller
             $riwayatStatus = RiwayatStatusOrder::create([
                 'order_id' => $order->id,
                 'status_id' => 4,
-                'keterangan' => 'Pesanan sudah dikemas',
+                'keterangan' => 'Pesanan s dikemas',
             ]);
         } else if ($status === 'packed_order') {
+            if ($order->jenis_pengiriman === 'ambil_ditempat') {
+                $riwayatStatus = RiwayatStatusOrder::create([
+                    'order_id' => $order->id,
+                    'status_id' => 10,
+                    'keterangan' => 'Pesanan siap diambil',
+                ]);
+            } else {
+                $riwayatStatus = RiwayatStatusOrder::create([
+                    'order_id' => $order->id,
+                    'status_id' => 5,
+                    'keterangan' => 'Pesanan sudah siap dikirim',
+                ]);
+            }
+        } elseif ($status === 'ready_for_pickup') {
             $riwayatStatus = RiwayatStatusOrder::create([
                 'order_id' => $order->id,
-                'status_id' => 5,
-                'keterangan' => 'Pesanan sudah siap dikirim',
+                'status_id' => 11,
+                'keterangan' => 'Pesanan sudah diambil',
             ]);
+        } else if ($status === 'packed_order') {
         } else {
             return redirect()->back()->withErrors(['status' => 'Transisi status tidak valid']);
         }

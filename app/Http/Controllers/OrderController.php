@@ -366,6 +366,22 @@ class OrderController extends Controller
             }
         }
 
+        $statusId = $order->statusTerakhir->status->id;
+        $activeStep = match (true) {
+            ($statusId == 1 || $statusId == 2) => 1,
+            (($statusId >= 3 && $statusId <= 6) || $statusId == 10) => 2,
+            ($statusId == 7 || $statusId == 11) => 3,
+            ($statusId == 8) => 4,
+            ($statusId == 9) => 5,
+            default => 0,
+        };
+
+        $alamatPengambilan = null;
+
+        if ($order->jenis_pengiriman === 'ambil_ditempat' && $activeStep >= 2) {
+            $alamatPengambilan = 'Perusahaan Jasa Telekomunikasi, Jl. Sholeh Iskandar No.KM 6, RT.04/RW.01, Cibadak, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16166';
+        }
+
         $hargaPerangkat = $order->perangkat->harga_perangkat;
         $hargaLayanan = $order->layanan->harga_layanan;
         $shippingCost = $order->biaya_pengiriman;
@@ -398,6 +414,9 @@ class OrderController extends Controller
             'totalPembayaran',
             'ringkasanTotalPembayaran',
             'waktuPengirimanSampai',
+            'activeStep',
+            'alamatPengambilan',
+            'statusId'
         ));
     }
 }
