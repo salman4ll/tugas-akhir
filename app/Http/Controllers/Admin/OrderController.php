@@ -311,7 +311,11 @@ class OrderController extends Controller
                 'perangkat.produk',
                 'layanan',
                 'alamatCustomer'
-            ])->findOrFail($orderId);
+            ])->where('unique_order', $orderId)->first();
+
+            if (!$dataOrder) {
+                return response()->json(['message' => 'Order not found'], 404);
+            }
 
             $html = view('components.label_shipping', [
                 'dataOrder' => $dataOrder

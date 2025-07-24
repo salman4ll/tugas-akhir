@@ -143,6 +143,13 @@
                                             </button>
                                         @endif
 
+                                        @if ($statusId >= 5 && $statusId < 9)
+                                            <a href="{{ route('admin.pesanan.downloadLabel', $item->unique_order) }}"
+                                                class="block px-4 py-2 text-sm text-indigo-700 hover:bg-indigo-100">
+                                                Cetak Resi
+                                            </a>
+                                        @endif
+
                                         @if ($statusId == 1 || $statusId == 2)
                                             <button type="button" onclick="showCancelModal('{{ $item->unique_order }}')"
                                                 class="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-100">

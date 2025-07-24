@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 | Guest Routes
 |--------------------------------------------------------------------------
 */
+
 Route::get('/', fn() => view('welcome'));
 
 // Auth: Login & Register
@@ -102,10 +103,9 @@ Route::prefix('admin')->group(function () {
         // Edit label shipping
         Route::get('/ekspedisi/edit/{id}', fn($id) => view('components.label_shipping', ['id' => $id]))
             ->name('admin.ekspedisi.edit');
+        Route::get('/{orderId}/download-label', [AdminOrderController::class, 'downloadLabelShipping'])
+            ->name('admin.pesanan.downloadLabel');
     });
 });
 
 // Download Label (Admin logistik)
-Route::get('/{orderId}/download-label', [AdminOrderController::class, 'downloadLabelShipping'])
-    ->name('downloadLabel')
-    ->middleware(['auth:admin', 'role:logistik']);
