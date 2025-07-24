@@ -1,101 +1,110 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
-use App\Http\Controllers\Api\BiteShipController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ShippingController;
-use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+/*
+|--------------------------------------------------------------------------
+| Guest Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('/', fn() => view('welcome'));
+
+// Auth: Login & Register
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+
+    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
 });
 
-Route::get('/user/pesanan', [OrderController::class, 'getOrder'])
-    ->name('user.pesanan')
-    ->middleware('auth');
+/*
+|--------------------------------------------------------------------------
+| Authenticated User Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function () {
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/user/pesanan/detail/{id}', [OrderController::class, 'getOrderDetail'])
-    ->name('user.pesanan.detail')
-    ->middleware('auth');
+    // Dashboard
+    Route::get('/user/dashboard', [DashboardController::class, 'index'])->name('user.dashboard');
 
-Route::get('/login', [AuthController::class, 'showLoginForm'])
-    ->name('login')
-    ->middleware('guest');
-Route::post('/login', [AuthController::class, 'login']);
+    // Orders
+    Route::get('/user/pesanan', [OrderController::class, 'getOrder'])->name('user.pesanan');
+    Route::get('/user/pesanan/detail/{id}', [OrderController::class, 'getOrderDetail'])->name('user.pesanan.detail');
+    Route::post('/generate-order', [OrderController::class, 'generateOrder'])->name('generate.order');
+    Route::post('/checkout', [OrderController::class, 'checkout'])->name('checkout');
 
-Route::get('/register', [AuthController::class, 'showRegisterForm'])
-    ->name('register')
-    ->middleware('guest');
-Route::post('/register', [AuthController::class, 'register']);
+    // Products
+    Route::get('/detail_product/{id}', [ProductController::class, 'detail'])->name('products.detail');
 
-Route::post('/logout', [AuthController::class, 'logout'])
-    ->name('logout')
-    ->middleware('auth');
-
-Route::get('/payment-summary', function () {
-    return view('product.payment_summary');
+    // Payment Summary
+    Route::get('/payment-summary/{layananId}', [OrderController::class, 'index'])->name('payment.summary');
 });
 
-Route::get('/payment-summary/{layananId}', [OrderController::class, 'index'])
-    ->name('payment.summary')
-    ->middleware('auth');
-Route::post('/checkout', [OrderController::class, 'checkout'])
-    ->name('checkout')
-    ->middleware('auth');
-
-Route::post('/generate-order', [OrderController::class, 'generateOrder'])
-    ->name('generate.order')
-    ->middleware('auth');
-
-Route::get('/detail_product/{id}', [ProductController::class, 'detail'])
-    ->name('products.detail')
-    ->middleware('auth');
-
+// Public Product List
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
-Route::get('/provinces', [AddressController::class, 'getProvinces'])->name('provinces.index');
-Route::get('/cities/{provinceId}', [AddressController::class, 'getCities'])->name('cities.index');
-Route::get('/districts/{cityId}', [AddressController::class, 'getDistricts'])->name('districts.index');
-Route::get('/subdistricts/{districtId}', [AddressController::class, 'getSubDistricts'])->name('subdistricts.index');
+// Address API
+Route::prefix('')->group(function () {
+    Route::get('/provinces', [AddressController::class, 'getProvinces'])->name('provinces.index');
+    Route::get('/cities/{provinceId}', [AddressController::class, 'getCities'])->name('cities.index');
+    Route::get('/districts/{cityId}', [AddressController::class, 'getDistricts'])->name('districts.index');
+    Route::get('/subdistricts/{districtId}', [AddressController::class, 'getSubDistricts'])->name('subdistricts.index');
+});
 
+// Shipping Methods
 Route::get('/shipping-methods', [ShippingController::class, 'getCourierList'])->name('shipping.methods');
 
+// Optional (non-auth): Static payment view
+Route::get('/payment-summary', fn() => view('product.payment_summary'));
 
-Route::get('/user/dashboard', [DashboardController::class, 'index'])
-    ->name('user.dashboard')
-    ->middleware('auth');
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin')->group(function () {
+    // Admin Auth
+    Route::middleware('guest:admin')->group(function () {
+        Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+        Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
+    });
 
-Route::get('admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard')->middleware(['auth:admin', 'role:logistik,am']);
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
-Route::get('admin/orders/{type}', [AdminOrderController::class, 'index'])->name('admin.orders')->middleware(['auth:admin', 'role:logistik']);
+    // Admin Dashboard (Logistik & AM)
+    Route::middleware(['auth:admin', 'role:logistik,am'])->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    });
 
-Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+    // Order Management (Logistik only)
+    Route::middleware(['auth:admin', 'role:logistik'])->group(function () {
+        Route::get('/orders/{type}', [AdminOrderController::class, 'index'])->name('admin.orders');
+        Route::post('/orders/update-status/{id}', [AdminOrderController::class, 'updateStatus'])->name('admin.pesanan.updateStatus');
 
-Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
-Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+        // Ekspedisi Management
+        Route::get('/ekspedisi', [AdminOrderController::class, 'getMetodePengiriman'])->name('admin.get-metode-pengiriman');
+        Route::get('/ekspedisi/create', [AdminOrderController::class, 'create'])->name('admin.ekspedisi.create');
+        Route::post('/ekspedisi/store', [AdminOrderController::class, 'store'])->name('admin.ekspedisi.store');
 
-Route::post('/admin/orders/update-status/{id}', [AdminOrderController::class, 'updateStatus'])->name('admin.pesanan.updateStatus');
+        // Edit label shipping
+        Route::get('/ekspedisi/edit/{id}', fn($id) => view('components.label_shipping', ['id' => $id]))
+            ->name('admin.ekspedisi.edit');
+    });
+});
 
-Route::get('/admin/ekspedisi', [AdminOrderController::class, 'getMetodePengiriman'])
-    ->name('admin.get-metode-pengiriman')->middleware(['auth:admin', 'role:logistik']);
-
-Route::get('/admin/ekspedisi/create', [AdminOrderController::class, 'create'])
-    ->name('admin.ekspedisi.create')
-    ->middleware(['auth:admin', 'role:logistik']);
-
-Route::post('/admin/ekspedisi/store', [AdminOrderController::class, 'store'])
-    ->name('admin.ekspedisi.store')
-    ->middleware(['auth:admin', 'role:logistik']);
-
-Route::get('/admin/ekspedisi/edit/{id}', function ($id) {
-    return view('components.label_shipping', ['id' => $id]);
-})->name('admin.ekspedisi.edit')->middleware(['auth:admin', 'role:logistik']);
-
+// Download Label (Admin logistik)
 Route::get('/{orderId}/download-label', [AdminOrderController::class, 'downloadLabelShipping'])
-    ->name('downloadLabel')->middleware(['auth:admin', 'role:logistik']);
+    ->name('downloadLabel')
+    ->middleware(['auth:admin', 'role:logistik']);

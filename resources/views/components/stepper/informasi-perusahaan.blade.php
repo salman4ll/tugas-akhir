@@ -21,6 +21,16 @@
             </div>
         </div>
         <div class="flex flex-col gap-2">
+            <label for="status_perusahaan" class="text-[#4E5764] font-extrabold">Status Perusahaan*</label>
+            <select id="status_perusahaan" name="status_perusahaan" class="input border p-2 rounded-lg w-full">
+                <option value="" disabled selected>Pilih Status Perusahaan</option>
+                <option value="1">Wajib Pungut (WAPU)</option>
+                <option value="2">Non-Wajib Pungut (non-WAPU) tanpa potong PPH 23</option>
+                <option value="3">Non-Wajib Pungut (non-WAPU) potong PPH 23</option>
+            </select>
+            <p id="status-error" class="text-red-500 text-sm hidden"></p>
+        </div>
+        <div class="flex flex-col gap-2">
             <label for="username" class="text-[#4E5764] font-extrabold">Username*</label>
             <input type="text" class="input border p-2 rounded-lg w-full" placeholder="Cth: mysatellite"
                 id="username" name="username">

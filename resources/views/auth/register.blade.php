@@ -53,9 +53,12 @@
     </form>
 
     @push('scripts')
-    <script src="{{ asset('assets/js/register/validation-informasi-perusahaan.js') }}"></script>
-    <script src="{{ asset('assets/js/register/validation-narahubung.js') }}"></script>
-    <script src="{{ asset('assets/js/register/validation-alamat-perusahaan.js') }}"></script>
+        <script src="{{ asset('assets/js/register/validation-informasi-perusahaan.js') }}"></script>
+        <script src="{{ asset('assets/js/register/validation-narahubung.js') }}"></script>
+        <script src="{{ asset('assets/js/register/validation-alamat-perusahaan.js') }}"></script>
         <script src="{{ asset('assets/js/register/index.js') }}"></script>
+        <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBiQ1_zaLft14YL7XWO5nPE32V8hMca5_g&callback=initMap&libraries=places">
+        </script>
     @endpush
 @endsection
