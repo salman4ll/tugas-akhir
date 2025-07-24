@@ -322,7 +322,7 @@ class OrderController extends Controller
             ])->render();
 
             $pdf = Pdf::loadHTML($html)
-                ->setPaper([0, 0, 400, 860], 'portrait')
+                ->setPaper([0, 0, 400, 870], 'portrait')
                 ->setOptions([
                     'dpi' => 96,
                     'defaultFont' => 'Arial',
@@ -334,7 +334,7 @@ class OrderController extends Controller
                     'margin-left' => 0,
                 ]);
 
-            return $pdf->download('label-shipping-' . $dataOrder->unique_order . '.pdf');
+            return $pdf->download('resi-' . $dataOrder->unique_order . '.pdf');
         } catch (\Exception $e) {
             Log::error('Error generating label shipping: ' . $e->getMessage());
             return response()->json(['message' => 'Failed to generate label'], 500);
