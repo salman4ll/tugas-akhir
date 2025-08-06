@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\RiwayatStatusOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -115,7 +116,22 @@ class OrderController extends Controller
                 break;
         }
 
-        return response()->json(['message' => 'Callback received successfully']);
+        Log::info('Midtrans Callback', [
+            'order_id' => $orderId,
+            'transaction_status' => $transactionStatus,
+            'payment_status' => $order->payment_status,
+            'payment_method' => $order->payment_method,
+            'request_data' => $request->all(),
+        ]);
+        return response()->json([
+            'message' => 'Callback received successfully',
+            'order_id' => $order->unique_order,
+            'transaction_status' => $transactionStatus,
+            'payment_status' => $order->payment_status,
+            'payment_method' => $order->payment_method,
+            'midtrans_settlement_time' => $request->settlement_time ?? null,
+            'system_updated_at' => now()->toDateTimeString(),
+        ]);
     }
 
     public function confirmationOrder(Request $request)
