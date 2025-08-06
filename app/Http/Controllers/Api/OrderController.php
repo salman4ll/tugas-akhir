@@ -30,6 +30,12 @@ class OrderController extends Controller
             return response()->json(['message' => 'Order not found'], 404);
         }
 
+        Log::info('Midtrans Callback Request Body', [
+            'order_id' => $orderId,
+            'transaction_status' => $transactionStatus,
+            'request_data' => $request->all(),
+        ]);
+
         switch ($transactionStatus) {
             case 'capture':
                 if ($request->payment_type == 'credit_card') {
