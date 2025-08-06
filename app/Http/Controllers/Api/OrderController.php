@@ -122,12 +122,13 @@ class OrderController extends Controller
                 break;
         }
 
-        Log::info('Midtrans Callback', [
+        Log::info('Midtrans Callback received successfully', [
             'order_id' => $orderId,
             'transaction_status' => $transactionStatus,
             'payment_status' => $order->payment_status,
             'payment_method' => $order->payment_method,
-            'request_data' => $request->all(),
+            'midtrans_settlement_time' => $request->settlement_time ?? null,
+            'system_updated_at' => now()->toDateTimeString(),
         ]);
         return response()->json([
             'message' => 'Callback received successfully',
